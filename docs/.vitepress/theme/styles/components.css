@@ -1,0 +1,211 @@
+/**
+ * VitePress Components Styles
+ * Customizations for Nav, Sidebar, Outline, etc.
+ */
+
+/**
+ * Navigation Bar
+ * -------------------------------------------------------------------------- */
+
+.VPNav {
+  background-color: var(--vp-c-bg);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.VPNavBar .title {
+  font-weight: 600;
+}
+
+.VPNavBarTitle .title {
+  color: var(--vp-c-text-1);
+  font-weight: 600;
+}
+
+.VPNavBarMenuLink {
+  color: var(--vp-c-text-1);
+  font-weight: 500;
+}
+
+.VPNavBarMenuLink:hover {
+  color: #42b983;
+}
+
+.VPNavBarMenuLink.active {
+  color: #42b983;
+}
+
+/**
+ * Sidebar
+ * -------------------------------------------------------------------------- */
+
+.VPSidebar {
+  background-color: var(--vp-c-bg-alt);
+}
+
+.VPSidebarItem .text {
+  font-weight: 500;
+}
+
+.VPSidebarItem.is-active > .item > .link > .text {
+  color: #42b983;
+  font-weight: 600;
+}
+
+.VPSidebarItem.is-active > .item > .link:hover .text {
+  color: #42b983;
+}
+
+.VPSidebarItem .link:hover .text {
+  color: #42b983;
+}
+
+/**
+ * Outline (Table of Contents)
+ * -------------------------------------------------------------------------- */
+
+.VPDocAsideOutline .outline-link {
+  color: var(--vp-c-text-2);
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.VPDocAsideOutline .outline-link:hover {
+  color: #42b983;
+}
+
+.VPDocAsideOutline .outline-link.active {
+  color: #42b983;
+  font-weight: 600;
+}
+
+.VPDocAsideOutline .outline-title {
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+/**
+ * Custom Containers
+ * -------------------------------------------------------------------------- */
+
+.vp-doc .custom-block {
+  border-radius: 2px;
+}
+
+.vp-doc .custom-block.tip {
+  border-left: 4px solid #42b983;
+  background-color: rgba(66, 185, 131, 0.1);
+}
+
+.vp-doc .custom-block.tip .custom-block-title {
+  color: #42b983;
+  font-weight: 600;
+}
+
+.vp-doc .custom-block.warning {
+  border-left: 4px solid #e7c000;
+}
+
+.vp-doc .custom-block.warning .custom-block-title {
+  color: #e7c000;
+}
+
+.vp-doc .custom-block.danger {
+  border-left: 4px solid #e0575b;
+}
+
+.vp-doc .custom-block.danger .custom-block-title {
+  color: #e0575b;
+}
+
+/**
+ * Search
+ * -------------------------------------------------------------------------- */
+
+.VPLocalSearchBox {
+  --vp-local-search-highlight-bg: #42b983;
+}
+
+.DocSearch-Button {
+  background-color: var(--vp-c-bg-alt);
+  border: 1px solid var(--vp-c-border);
+}
+
+.DocSearch-Button:hover {
+  border-color: #42b983;
+}
+
+/**
+ * Footer
+ * -------------------------------------------------------------------------- */
+
+.VPFooter {
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+/**
+ * Doc Footer (Prev/Next)
+ * -------------------------------------------------------------------------- */
+
+.VPDocFooter {
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.pager-link .title {
+  font-weight: 600;
+}
+
+.pager-link:hover .title {
+  color: #42b983;
+}
+
+/**
+ * Code Copy Button
+ * -------------------------------------------------------------------------- */
+
+.vp-code-group .tabs {
+  background-color: var(--vp-code-block-bg);
+}
+
+.vp-code-group .tabs label {
+  font-weight: 500;
+}
+
+.vp-code-group .tabs label.active {
+  color: #42b983;
+}
+
+div[class*='language-'] > button.copy {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+div[class*='language-']:hover > button.copy {
+  opacity: 1;
+}
+
+div[class*='language-'] > button.copy:hover {
+  background-color: rgba(66, 185, 131, 0.1);
+}
+
+/**
+ * Badge
+ * -------------------------------------------------------------------------- */
+
+.VPBadge {
+  font-weight: 600;
+}
+
+.VPBadge.tip {
+  background-color: rgba(66, 185, 131, 0.1);
+  color: #42b983;
+  border: 1px solid #42b983;
+}
+
+/**
+ * Back to Top
+ * -------------------------------------------------------------------------- */
+
+.VPBackdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+

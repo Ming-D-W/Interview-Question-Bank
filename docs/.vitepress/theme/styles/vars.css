@@ -1,0 +1,114 @@
+/**
+ * CSS Variables - Vue Theme Colors
+ * Light and Dark mode support
+ */
+
+/**
+ * Colors: Light Mode (Vue Theme)
+ * -------------------------------------------------------------------------- */
+
+:root {
+  /* Brand Colors - Vue Green */
+  --vp-c-brand-1: #42b983;
+  --vp-c-brand-2: #35a372;
+  --vp-c-brand-3: #42b983;
+  --vp-c-brand-soft: rgba(66, 185, 131, 0.14);
+
+  /* Text Colors */
+  --vp-c-text-1: #34495e;
+  --vp-c-text-2: #67676c;
+  --vp-c-text-3: #929295;
+
+  /* Background Colors */
+  --vp-c-bg: #ffffff;
+  --vp-c-bg-alt: #f6f6f7;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-bg-soft: #f6f6f7;
+
+  /* Border Colors */
+  --vp-c-border: #ddd;
+  --vp-c-divider: #ddd;
+  --vp-c-gutter: #e2e2e3;
+
+  /* Code Colors */
+  --vp-code-color: #e96900;
+  --vp-code-bg: #f8f8f8;
+  --vp-code-block-bg: #F8F8F8;
+  --vp-code-block-color: #34495e;
+
+  /* Custom Block Colors */
+  --vp-custom-block-tip-border: transparent;
+  --vp-custom-block-tip-text: var(--vp-c-text-1);
+  --vp-custom-block-tip-bg: rgba(66, 185, 131, 0.1);
+  --vp-custom-block-tip-code-bg: rgba(66, 185, 131, 0.1);
+
+  /* Font Families */
+  --vp-font-family-base: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --vp-font-family-mono: 'Roboto Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/**
+ * Colors: Dark Mode (Vue Dark Theme)
+ * -------------------------------------------------------------------------- */
+
+.dark {
+  /* Brand Colors - Keep Vue Green */
+  --vp-c-brand-1: #42b983;
+  --vp-c-brand-2: #35a372;
+  --vp-c-brand-3: #42b983;
+  --vp-c-brand-soft: rgba(66, 185, 131, 0.16);
+
+  /* Text Colors */
+  --vp-c-text-1: #eeeeee;
+  --vp-c-text-2: #aaaaaa;
+  --vp-c-text-3: #777777;
+
+  /* Background Colors */
+  --vp-c-bg: #1f1f1f;
+  --vp-c-bg-alt: #1d1d1d;
+  --vp-c-bg-elv: #252525;
+  --vp-c-bg-soft: #252525;
+
+  /* Border Colors */
+  --vp-c-border: hsl(0, 0%, 20%);
+  --vp-c-divider: hsl(0, 0%, 20%);
+  --vp-c-gutter: #000000;
+
+  /* Code Colors */
+  --vp-code-color: #f3b37f;
+  --vp-code-bg: hsla(0, 0%, 0%, 0.2);
+  --vp-code-block-bg: hsl(0, 0%, 10%);
+  --vp-code-block-color: hsl(0, 0%, 78%);
+
+  /* Custom Block Colors */
+  --vp-custom-block-tip-border: transparent;
+  --vp-custom-block-tip-text: var(--vp-c-text-1);
+  --vp-custom-block-tip-bg: rgba(66, 185, 131, 0.1);
+  --vp-custom-block-tip-code-bg: rgba(66, 185, 131, 0.1);
+}
+
+/**
+ * Component: Button
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-bg: #42b983;
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-hover-bg: #35a372;
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: #ffffff;
+  --vp-button-brand-active-bg: #2d8f62;
+}
+
+/**
+ * Component: Home Hero
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-home-hero-name-color: #42b983;
+  --vp-home-hero-name-background: transparent;
+}
+

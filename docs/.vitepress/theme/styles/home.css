@@ -1,0 +1,130 @@
+/**
+ * Home Page Styles
+ * Customizations for Hero and Features sections
+ */
+
+/**
+ * Hero Section
+ * -------------------------------------------------------------------------- */
+
+.VPHome {
+  background-color: var(--vp-c-bg);
+}
+
+.VPHero .name {
+  color: #42b983;
+  font-weight: 700;
+}
+
+.VPHero .text {
+  color: var(--vp-c-text-1);
+  font-weight: 500;
+}
+
+.VPHero .tagline {
+  color: var(--vp-c-text-2);
+  font-weight: 400;
+}
+
+/**
+ * Hero Actions (Buttons)
+ * -------------------------------------------------------------------------- */
+
+.VPHero .actions {
+  gap: 1rem;
+}
+
+.VPButton.brand {
+  background-color: #42b983;
+  border-color: #42b983;
+  color: #ffffff;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.VPButton.brand:hover {
+  background-color: #35a372;
+  border-color: #35a372;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 185, 131, 0.3);
+}
+
+.VPButton.brand:active {
+  background-color: #2d8f62;
+  border-color: #2d8f62;
+  transform: translateY(0);
+}
+
+.VPButton.alt {
+  border-color: var(--vp-c-border);
+  color: var(--vp-c-text-1);
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.VPButton.alt:hover {
+  border-color: #42b983;
+  color: #42b983;
+}
+
+/**
+ * Features Section
+ * -------------------------------------------------------------------------- */
+
+.VPFeatures {
+  background-color: var(--vp-c-bg);
+}
+
+.VPFeature {
+  background-color: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-border);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.VPFeature:hover {
+  border-color: #42b983;
+  box-shadow: 0 4px 12px rgba(66, 185, 131, 0.1);
+  transform: translateY(-2px);
+}
+
+.VPFeature .title {
+  color: var(--vp-c-text-1);
+  font-weight: 600;
+}
+
+.VPFeature .details {
+  color: var(--vp-c-text-2);
+}
+
+.VPFeature .icon {
+  color: #42b983;
+}
+
+/**
+ * Home Content
+ * -------------------------------------------------------------------------- */
+
+.VPHomeContent {
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+}
+
+/**
+ * Dark Mode Adjustments
+ * -------------------------------------------------------------------------- */
+
+.dark .VPHome {
+  background-color: var(--vp-c-bg);
+}
+
+.dark .VPFeature {
+  background-color: var(--vp-c-bg-soft);
+  border-color: var(--vp-c-border);
+}
+
+.dark .VPFeature:hover {
+  border-color: #42b983;
+  box-shadow: 0 4px 12px rgba(66, 185, 131, 0.2);
+}
+
