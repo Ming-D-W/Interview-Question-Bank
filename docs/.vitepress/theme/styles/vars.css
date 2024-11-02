@@ -33,8 +33,9 @@
   /* Code Colors */
   --vp-code-color: #e96900;
   --vp-code-bg: #f8f8f8;
-  --vp-code-block-bg: #F8F8F8;
-  --vp-code-block-color: #34495e;
+  /* Code Block Colors - Vue OneDark Enhanced Theme */
+  --vp-code-block-bg: #282c34;
+  --vp-code-block-color: #b1b4b9;
 
   /* Custom Block Colors */
   --vp-custom-block-tip-border: transparent;
@@ -77,8 +78,9 @@
   /* Code Colors */
   --vp-code-color: #f3b37f;
   --vp-code-bg: hsla(0, 0%, 0%, 0.2);
-  --vp-code-block-bg: hsl(0, 0%, 10%);
-  --vp-code-block-color: hsl(0, 0%, 78%);
+  /* Code Block Colors - Vue OneDark Enhanced Theme */
+  --vp-code-block-bg: #282c34;
+  --vp-code-block-color: #b1b4b9;
 
   /* Custom Block Colors */
   --vp-custom-block-tip-border: transparent;

@@ -1,9 +1,17 @@
 import { defineConfig } from "vitepress";
+import vueOnedarkTheme from "./theme/vue-onedark-theme.json";
 
 // https://vitepress.vuejs.org/config/app-configs
 export default defineConfig({
   title: "面试题库",
   description: "前端面试题整理",
+  scrollOffset: 80,
+  markdown: {
+    theme: {
+      light: vueOnedarkTheme as any,
+      dark: vueOnedarkTheme as any,
+    },
+  },
   themeConfig: {
     nav: [
       { text: "首页", link: "/" },
