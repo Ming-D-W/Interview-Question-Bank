@@ -15,7 +15,8 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: "首页", link: "/" },
-      { text: "面试题", link: "/interview/" },
+      { text: "面试题", link: "/interview/01.Vue" },
+      { text: "Vue3 最佳实践", link: "/vue3-best-practices/" },
     ],
     sidebar: {
       "/interview/": [
@@ -29,6 +30,17 @@ export default defineConfig({
             { text: "New Vue 主体流程", link: "/interview/07.new vue主体流程" },
             { text: "Vue2 响应式源码", link: "/interview/08.Vue2响应式源码" },
             { text: "Vue2 Diff 算法", link: "/interview/09.Vue2 Diff 算法" },
+          ],
+        },
+      ],
+      "/vue3-best-practices/": [
+        {
+          text: "Vue 3 最佳实践",
+          items: [
+            { text: "概述", link: "/vue3-best-practices/" },
+            { text: "组件封装最佳实践", link: "/vue3-best-practices/01-component-encapsulation" },
+            { text: "无渲染组件指南", link: "/vue3-best-practices/02-renderless-components" },
+            { text: "组件二次封装指南", link: "/vue3-best-practices/03-component-wrapper" },
           ],
         },
       ],
