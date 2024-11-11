@@ -3,6 +3,7 @@ import vueOnedarkTheme from "./theme/vue-onedark-theme.json";
 
 // https://vitepress.vuejs.org/config/app-configs
 export default defineConfig({
+  base: '/Interview-Question-Bank/',
   title: "面试题库",
   description: "前端面试题整理",
   scrollOffset: 80,
