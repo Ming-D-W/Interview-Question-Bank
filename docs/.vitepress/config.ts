@@ -17,13 +17,8 @@ export default defineConfig({
     build: {
       // 代码分割优化
       chunkSizeWarningLimit: 1000,
-      // 优化构建性能
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true, // 生产环境移除console
-        }
-      }
+      // 使用esbuild压缩(默认,速度更快)
+      minify: 'esbuild',
     },
     // 开发服务器优化
     server: {
@@ -31,6 +26,10 @@ export default defineConfig({
         // 允许访问项目根目录之外的文件
         allow: ['..']
       }
+    },
+    // esbuild优化配置
+    esbuild: {
+      drop: ['console', 'debugger'], // 生产环境移除console和debugger
     }
   },
 
