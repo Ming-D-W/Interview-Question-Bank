@@ -1,0 +1,66 @@
+{
+  "/interview": [
+    {
+      "hash": "dba9bb43",
+      "file": "01.Vue",
+      "text": "Vue"
+    },
+    {
+      "hash": "aec61bfa",
+      "file": "02.JS",
+      "text": "JS"
+    },
+    {
+      "hash": "3f008f12",
+      "file": "03.浏览器&http",
+      "text": "浏览器&http"
+    },
+    {
+      "hash": "c5775845",
+      "file": "04.CSS",
+      "text": "CSS"
+    },
+    {
+      "hash": "2258c382",
+      "file": "07.new vue主体流程",
+      "text": "new vue主体流程"
+    },
+    {
+      "hash": "f5471474",
+      "file": "08.Vue2响应式源码",
+      "text": "Vue2响应式源码"
+    },
+    {
+      "hash": "78bf239d",
+      "file": "09.Vue2 Diff 算法",
+      "text": "Vue2 Diff 算法"
+    }
+  ],
+  "/vue3-best-practices": [
+    {
+      "hash": "75f7879e",
+      "file": "01.Vue 3 组件封装最佳实践与设计模式",
+      "text": "Vue 3 组件封装最佳实践与设计模式"
+    },
+    {
+      "hash": "08fa0c58",
+      "file": "02.Vue 3 无渲染组件完整指南",
+      "text": "Vue 3 无渲染组件完整指南"
+    },
+    {
+      "hash": "f2c659c1",
+      "file": "03.Vue 3 组件二次封装完整指南",
+      "text": "Vue 3 组件二次封装完整指南"
+    },
+    {
+      "hash": "b3ddd7f4",
+      "file": "04.Vue 3 组件封装常见问题 FAQ",
+      "text": "Vue 3 组件封装常见问题 FAQ"
+    },
+    {
+      "hash": "87b47993",
+      "file": "05.Vue 3 组件性能优化专题",
+      "text": "Vue 3 组件性能优化专题"
+    }
+  ]
+}

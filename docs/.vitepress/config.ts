@@ -1,6 +1,17 @@
 import { defineConfig } from "vitepress";
 import vueOnedarkTheme from "./theme/vue-onedark-theme.json";
-import { generateAllSidebars, getFirstArticleLink } from "./utils/generateSidebar";
+import { generateAllSidebars, getFirstArticleLink, generateRewrites, saveRouteMappings } from "./utils/generateSidebar";
+
+// 生成 sidebar（这会填充 routeMappings）
+const sidebar = generateAllSidebars();
+
+// 生成 rewrites 配置（必须在 generateAllSidebars 之后调用）
+const rewrites = generateRewrites();
+
+// 保存路由映射到文件（用于调试）
+if (process.env.NODE_ENV !== 'production') {
+  saveRouteMappings();
+}
 
 // https://vitepress.vuejs.org/config/app-configs
 export default defineConfig({
@@ -9,6 +20,9 @@ export default defineConfig({
   description: "前端面试题整理",
   scrollOffset: 80,
   cleanUrls: true,
+
+  // 路由重写配置：将哈希路径映射到原始文件路径
+  rewrites,
 
   // 性能优化配置
   lastUpdated: true,
@@ -59,7 +73,7 @@ export default defineConfig({
       { text: "面试题", link: getFirstArticleLink('docs/interview'), activeMatch: '/interview/' },
       { text: "Vue3 组件封装最佳实践", link: getFirstArticleLink('docs/vue3-best-practices'), activeMatch: '/vue3-best-practices/' },
     ],
-    sidebar: generateAllSidebars(),
+    sidebar,
     search: {
       provider: "local",
     },
