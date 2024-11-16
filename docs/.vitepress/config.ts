@@ -9,7 +9,6 @@ export default defineConfig({
   scrollOffset: 80,
 
   // 性能优化配置
-  cleanUrls: true,
   lastUpdated: true,
 
   // Vite 构建优化
@@ -55,8 +54,8 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: "首页", link: "/" },
-      { text: "面试题", link: "/interview/01.Vue" },
-      { text: "Vue3 组件封装最佳实践", link: "/vue3-best-practices/" },
+      { text: "面试题", link: "/interview/01.Vue", activeMatch: '/interview/' },
+      { text: "Vue3 组件封装最佳实践", link: "/vue3-best-practices/", activeMatch: '/vue3-best-practices/' },
     ],
     sidebar: {
       "/interview/": [
