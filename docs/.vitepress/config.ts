@@ -17,12 +17,11 @@ export default defineConfig({
     build: {
       // 代码分割优化
       chunkSizeWarningLimit: 1000,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            // 将大的依赖单独打包
-            'vue-vendor': ['vue', 'vue-router'],
-          }
+      // 优化构建性能
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true, // 生产环境移除console
         }
       }
     },
