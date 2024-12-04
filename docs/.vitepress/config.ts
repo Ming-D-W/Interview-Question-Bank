@@ -58,6 +58,8 @@ export default defineConfig({
     lineNumbers: false, // 禁用行号以提升性能
     // 代码高亮缓存
     cache: true,
+    // 将段落中的 '\n' 转换为 <br>，与 Typora 行为一致
+    breaks: true,
   },
 
   // Head 标签优化
