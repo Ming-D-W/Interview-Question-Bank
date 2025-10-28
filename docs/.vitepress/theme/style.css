@@ -1,0 +1,16 @@
+/**
+ * VitePress Vue Theme - Main Style Entry
+ * Inspired by Typora Vue Theme
+ * https://github.com/blinkfox/typora-vue-theme
+ */
+
+/* Import fonts */
+@import './fonts/fonts.css';
+
+/* Import custom styles */
+@import './styles/vars.css';
+@import './styles/base.css';
+@import './styles/doc.css';
+@import './styles/components.css';
+@import './styles/home.css';
+

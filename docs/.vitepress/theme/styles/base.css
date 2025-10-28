@@ -1,0 +1,33 @@
+/**
+ * Base Styles - Global Typography and Layout
+ * Based on Typora Vue Theme
+ */
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--vp-font-family-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6rem;
+  letter-spacing: 0;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(66, 185, 131, 0.3);
+  color: inherit;
+}
+
+::-moz-selection {
+  background-color: rgba(66, 185, 131, 0.3);
+  color: inherit;
+}
+
