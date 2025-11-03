@@ -1,0 +1,3668 @@
+---
+title: JavaScript
+---
+
+# JavaScript 面试知识体系
+
+## 📚 目录导航
+
+### 一、基础篇
+- [数据类型](#数据类型)
+- [数据类型判断](#数据类型判断)
+- [类型转换](#类型转换)
+- [变量声明](#变量声明)
+- [变量提升](#变量提升)
+- [暂时性死区](#暂时性死区)
+- [作用域链](#作用域链)
+- [执行上下文](#执行上下文)
+- [执行栈](#执行栈)
+
+### 二、函数篇
+- [this指向](#this指向)
+- [call、apply、bind](#callapplybind的区别)
+- [箭头函数](#箭头函数和普通函数的区别)
+- [默认参数](#默认参数)
+- [闭包](#闭包)
+
+### 三、对象篇
+- [new关键字](#new关键字的执行过程)
+- [原型链](#原型链)
+- [继承](#继承)
+- [class类](#class类)
+
+### 四、异步篇
+- [回调函数](#回调函数)
+- [Promise](#promise)
+- [async/await](#asyncawait)
+- [事件循环](#事件循环)
+- [宏任务&微任务](#宏任务微任务)
+
+### 五、ES6+篇
+- [let & const](#let-const)
+- [解构赋值](#解构赋值)
+- [模板字符串](#模板字符串)
+- [扩展运算符](#扩展运算符)
+- [Set & Map](#setmap)
+- [for...in & for...of](#for-in--for-of)
+
+### 六、常用API篇
+- [数组方法](#数组的常用方法有哪些)
+- [字符串方法](#字符串常用方法)
+- [对象方法](#对象常用方法)
+
+### 七、浏览器篇
+- [Cookie、LocalStorage、SessionStorage](#cookielocalstoragesessionstorage)
+- [跨域解决方案](#跨域解决方案)
+- [Ajax 和 Fetch](#ajax-和-fetch)
+
+### 八、工程化篇
+- [数据处理](#数组转树形结构)
+- [深拷贝](#手写深拷贝)
+- [防抖节流](#防抖节流)
+- [内存泄漏](#内存泄漏)
+- [事件委托&事件冒泡](#事件委托事件冒泡)
+- [错误捕获](#前端如何捕获错误)
+- [性能优化](#性能优化)
+
+### 九、手写实现篇
+- [手写call/apply/bind](#手写call)
+- [手写new](#手写new)
+- [手写instanceof](#手写instanceof)
+- [手写Promise](#手写promise)
+- [手写深拷贝](#手写深拷贝)
+- [手写防抖节流](#手写防抖)
+- [手写柯里化](#手写柯里化)
+
+### 十、其他篇
+- [Proxy和Reflect](#proxy和reflect)
+- [严格模式](#严格模式)
+
+---
+
+# 一、基础篇
+
+本篇涵盖JavaScript的基础知识，包括数据类型、变量声明、作用域、执行机制等核心概念。
+
+## 数据类型
+
+JavaScript有8种数据类型：
+
+**基本数据类型（7种）**
+- Number（数字）
+- String（字符串）
+- Boolean（布尔）
+- Undefined（未定义）
+- Null（空）
+- Symbol（符号，ES6新增）
+- BigInt（大整数，ES2020新增）
+
+**引用数据类型（1种）**
+- Object（对象），包括：Object、Array、Function、Date、RegExp、Map、Set等
+
+**区别：**
+1. 存储位置不同：基本类型存储在栈中，引用类型存储在堆中，栈中存储的是引用地址
+2. 赋值方式不同：基本类型赋值是值的拷贝，引用类型赋值是地址的拷贝
+3. 比较方式不同：基本类型比较值，引用类型比较地址
+
+## 数据类型判断
+
+**1. typeof**
+
+可以判断基本数据类型（除了null），但对于引用类型，除了function返回"function"，其他都返回"object"。
+
+```js
+typeof 123 // "number"
+typeof '123' // "string"
+typeof true // "boolean"
+typeof undefined // "undefined"
+typeof null // "object" (历史遗留bug)
+typeof Symbol() // "symbol"
+typeof 10n // "bigint"
+typeof {} // "object"
+typeof [] // "object"
+typeof function(){} // "function"
+```
+
+**2. instanceof**
+
+用于判断对象的具体类型，检查构造函数的prototype是否在对象的原型链上。
+
+```js
+[] instanceof Array // true
+[] instanceof Object // true
+{} instanceof Object // true
+function(){} instanceof Function // true
+```
+
+**3. Object.prototype.toString.call()**
+
+最准确的类型判断方法，可以判断所有数据类型。
+
+```js
+Object.prototype.toString.call(123) // "[object Number]"
+Object.prototype.toString.call('123') // "[object String]"
+Object.prototype.toString.call(true) // "[object Boolean]"
+Object.prototype.toString.call(undefined) // "[object Undefined]"
+Object.prototype.toString.call(null) // "[object Null]"
+Object.prototype.toString.call({}) // "[object Object]"
+Object.prototype.toString.call([]) // "[object Array]"
+Object.prototype.toString.call(function(){}) // "[object Function]"
+Object.prototype.toString.call(new Date()) // "[object Date]"
+Object.prototype.toString.call(/\d/) // "[object RegExp]"
+```
+
+**4. Array.isArray()**
+
+专门用于判断是否为数组。
+
+```js
+Array.isArray([]) // true
+Array.isArray({}) // false
+```
+
+## 类型转换
+
+**隐式类型转换**
+
+JavaScript在运算过程中会自动进行类型转换。
+
+```js
+// 转为字符串
+1 + '2' // "12"
+'5' + 1 // "51"
+
+// 转为数字
+'5' - 2 // 3
+'5' * '2' // 10
+'5' / 2 // 2.5
+'5' % 2 // 1
+
+// 转为布尔值
+!!0 // false
+!!'hello' // true
+if ('hello') {} // true
+
+// == 运算符的隐式转换
+null == undefined // true
+0 == false // true
+'' == false // true
+[] == false // true
+[] == ![] // true (复杂的转换规则)
+```
+
+**显式类型转换**
+
+```js
+// 转为字符串
+String(123) // "123"
+(123).toString() // "123"
+
+// 转为数字
+Number('123') // 123
+parseInt('123px') // 123
+parseFloat('12.3.4') // 12.3
++'123' // 123 (一元加运算符)
+
+// 转为布尔值
+Boolean(0) // false
+Boolean('hello') // true
+
+// 假值（转为布尔值为false的值）
+// false, 0, '', null, undefined, NaN
+```
+
+## 变量声明
+
+**var、let、const的区别：**
+
+1. **作用域不同**
+   - var声明的变量作用域是函数级别的
+   - let和const声明的变量作用域是块级别的（可以是函数、花括号或模块）
+
+```js
+// var - 函数作用域
+function test() {
+  if (true) {
+    var a = 1
+  }
+  console.log(a) // 1，可以访问
+}
+
+// let - 块级作用域
+function test2() {
+  if (true) {
+    let b = 2
+  }
+  console.log(b) // 报错：b is not defined
+}
+```
+
+2. **变量提升不同**
+   - var声明的变量可以在声明之前访问，值为undefined
+   - let和const声明的变量在声明之前访问会抛出ReferenceError
+
+```js
+console.log(a) // undefined
+var a = 10
+
+console.log(b) // 报错：Cannot access 'b' before initialization
+let b = 20
+```
+
+3. **重复声明**
+   - var声明的变量可以被重复声明
+   - let和const声明的变量不允许重复声明
+
+```js
+var a = 1
+var a = 2 // 正常
+
+let b = 1
+let b = 2 // 报错：Identifier 'b' has already been declared
+```
+
+4. **重新赋值**
+   - var和let声明的变量可以被重新赋值
+   - const声明的变量是不可变的，其值不能被重新赋值
+
+```js
+let a = 1
+a = 2 // 正常
+
+const b = 1
+b = 2 // 报错：Assignment to constant variable
+```
+
+5. **初始化要求**
+   - const声明的变量必须在声明时初始化，不能在之后赋值
+
+```js
+const a // 报错：Missing initializer in const declaration
+const b = 1 // 正常
+```
+
+## 变量提升
+
+**什么是变量提升？**
+
+变量提升（Hoisting）是JavaScript在编译阶段将变量和函数声明提升到作用域顶部的行为。
+
+**var的变量提升：**
+
+```js
+console.log(a) // undefined (不会报错)
+var a = 10
+console.log(a) // 10
+
+// 相当于：
+var a
+console.log(a) // undefined
+a = 10
+console.log(a) // 10
+```
+
+**函数提升：**
+
+```js
+// 函数声明：完整提升
+sayHi() // '你好' (可以在声明前调用)
+function sayHi() {
+  console.log('你好')
+}
+
+// 函数表达式：只提升变量，不提升函数
+// sayHello() // 报错：sayHello is not a function
+var sayHello = function() {
+  console.log('Hello')
+}
+sayHello() // 'Hello'
+
+// 相当于：
+var sayHello // 变量提升
+sayHello() // undefined() 报错
+sayHello = function() {
+  console.log('Hello')
+}
+```
+
+**let和const没有变量提升：**
+
+```js
+// console.log(a) // 报错：Cannot access 'a' before initialization
+let a = 10
+console.log(a) // 10
+
+// console.log(b) // 报错：Cannot access 'b' before initialization
+const b = 20
+console.log(b) // 20
+```
+
+**函数优先提升：**
+
+当函数声明和变量声明同名时，函数声明优先级更高。
+
+```js
+console.log(foo) // [Function: foo]
+
+var foo = 10
+function foo() {
+  console.log('foo')
+}
+
+console.log(foo) // 10
+
+// 相当于：
+function foo() {
+  console.log('foo')
+}
+var foo // 重复声明被忽略
+console.log(foo) // [Function: foo]
+foo = 10
+console.log(foo) // 10
+```
+
+## 暂时性死区
+
+**什么是暂时性死区？**
+
+暂时性死区（Temporal Dead Zone，简称TDZ）是指在let/const声明之前，该变量都是不可用的，访问会抛出ReferenceError错误。
+
+```js
+// TDZ开始
+console.log(a) // 报错：Cannot access 'a' before initialization
+let a = 10
+// TDZ结束
+console.log(a) // 10
+```
+
+**为什么会有TDZ？**
+
+TDZ的设计是为了让程序更加严谨，减少运行时错误，提前发现问题。
+
+**TDZ的特点：**
+
+1. let/const声明的变量在声明之前都处于TDZ中
+2. 在TDZ中访问变量会抛出错误
+3. typeof检查也会报错
+
+```js
+// 情况1：var不存在TDZ
+console.log(typeof a) // 'undefined'
+var a = 10
+
+// 情况2：let存在TDZ
+console.log(typeof b) // 报错：Cannot access 'b' before initialization
+let b = 10
+
+// 情况3：未声明的变量
+console.log(typeof c) // 'undefined' (不会报错)
+```
+
+**注意事项：**
+
+```js
+let x = 10
+{
+  // TDZ开始
+  console.log(x) // 报错，不会访问外层的x
+  let x = 20 // TDZ结束
+}
+```
+
+## 作用域链
+
+**什么是作用域链？**
+
+作用域链是JavaScript中变量查找的机制。当访问一个变量时，JavaScript引擎会按照作用域链从内到外查找变量。
+
+**查找规则：**
+
+内部函数访问变量时：
+1. 先在自身作用域查找变量声明
+2. 如果没有找到，往外层作用域查找
+3. 一直查找到全局作用域
+4. 如果找到多个同名变量，采取就近原则
+
+```js
+const a = 'global'
+
+function outer() {
+  const a = 'outer'
+
+  function inner() {
+    const a = 'inner'
+    console.log(a) // 'inner' - 就近原则
+  }
+
+  inner()
+  console.log(a) // 'outer'
+}
+
+outer()
+console.log(a) // 'global'
+```
+
+## 执行上下文
+
+**什么是执行上下文？**
+
+执行上下文（Execution Context）是JavaScript代码执行的环境，包含了变量、函数声明、作用域链、this等信息。
+
+**执行上下文的类型：**
+
+1. **全局执行上下文**：默认的、最基础的执行上下文，只有一个
+2. **函数执行上下文**：每当函数被调用时，都会创建一个新的执行上下文
+3. **Eval执行上下文**：eval函数内部的代码（不推荐使用）
+
+**执行上下文的生命周期：**
+
+1. **创建阶段**
+   - 创建变量对象（Variable Object）
+   - 建立作用域链（Scope Chain）
+   - 确定this的指向
+
+2. **执行阶段**
+   - 变量赋值
+   - 函数引用
+   - 执行其他代码
+
+3. **销毁阶段**
+   - 执行完毕后，执行上下文被弹出执行栈并销毁
+
+## 执行栈
+
+**什么是执行栈？**
+
+执行栈（Execution Stack），也叫调用栈（Call Stack），是JavaScript中用于存储代码执行顺序的数据结构。
+
+**执行栈的特点：**
+
+1. **后进先出（LIFO）**：最后添加的函数最先执行完毕
+2. **单线程**：JavaScript是单线程的，同一时间只能执行一个任务
+3. **栈溢出**：递归调用过深会导致栈溢出错误
+
+**执行流程：**
+
+```js
+function first() {
+  console.log('first函数开始')
+  second()
+  console.log('first函数结束')
+}
+
+function second() {
+  console.log('second函数开始')
+  third()
+  console.log('second函数结束')
+}
+
+function third() {
+  console.log('third函数执行')
+}
+
+first()
+
+// 执行栈变化：
+// 1. [first] - first入栈
+// 2. [first, second] - second入栈
+// 3. [first, second, third] - third入栈
+// 4. [first, second] - third执行完出栈
+// 5. [first] - second执行完出栈
+// 6. [] - first执行完出栈
+
+// 输出顺序：
+// first函数开始
+// second函数开始
+// third函数执行
+// second函数结束
+// first函数结束
+```
+
+**栈溢出示例：**
+
+```js
+function recursion() {
+  recursion() // 无限递归
+}
+
+recursion() // 报错：Maximum call stack size exceeded
+```
+
+---
+
+# 二、函数篇
+
+本篇介绍JavaScript中函数的核心概念，包括this指向、call/apply/bind、箭头函数、闭包等。
+
+## this指向
+
+this的指向取决于函数的调用方式，而不是函数的定义位置。
+
+**1. 默认绑定（独立函数调用）**
+在非严格模式下，this指向全局对象（浏览器中是window）；在严格模式下，this是undefined。
+
+```js
+function fn() {
+  console.log(this)
+}
+fn() // 非严格模式: window, 严格模式: undefined
+```
+
+**2. 隐式绑定（对象方法调用）**
+当函数作为对象的方法调用时，this指向该对象。
+
+```js
+const obj = {
+  name: '张三',
+  sayName() {
+    console.log(this.name)
+  }
+}
+obj.sayName() // this指向obj，输出"张三"
+```
+
+**3. 显式绑定（call/apply/bind）**
+通过call、apply、bind可以显式指定this的指向。
+
+```js
+function fn() {
+  console.log(this.name)
+}
+const obj = { name: '李四' }
+fn.call(obj) // this指向obj，输出"李四"
+fn.apply(obj) // this指向obj，输出"李四"
+const bindFn = fn.bind(obj)
+bindFn() // this指向obj，输出"李四"
+```
+
+**4. new绑定（构造函数调用）**
+使用new关键字调用构造函数时，this指向新创建的实例对象。
+
+```js
+function Person(name) {
+  this.name = name
+}
+const person = new Person('王五')
+console.log(person.name) // "王五"
+```
+
+**5. 箭头函数**
+箭头函数没有自己的this，它的this继承自外层作用域，且无法通过call/apply/bind改变。
+
+```js
+const obj = {
+  name: '赵六',
+  sayName: () => {
+    console.log(this.name) // this不是obj，而是外层作用域的this
+  }
+}
+```
+
+**优先级：** new绑定 > 显式绑定 > 隐式绑定 > 默认绑定
+
+## call、apply、bind的区别
+
+这三个方法都可以改变函数内部this的指向。
+
+**call：**
+- 立即调用函数
+- 参数逐个传递
+
+```js
+function greet(age, city) {
+  console.log(`我是${this.name}，今年${age}岁，来自${city}`)
+}
+
+const obj = { name: '张三' }
+greet.call(obj, 18, '北京') // '我是张三，今年18岁，来自北京'
+```
+
+**apply：**
+- 立即调用函数
+- 参数以数组形式传递
+
+```js
+greet.apply(obj, [18, '北京']) // '我是张三，今年18岁，来自北京'
+```
+
+**bind：**
+- 不立即调用，返回一个新函数
+- 参数逐个传递
+
+```js
+const boundGreet = greet.bind(obj, 18, '北京')
+boundGreet() // '我是张三，今年18岁，来自北京'
+```
+
+**区别总结：**
+- call和apply立即执行，bind返回新函数
+- call和bind参数逐个传递，apply参数以数组传递
+- bind可以分步传参（柯里化）
+
+## 箭头函数和普通函数的区别
+
+1. **语法更简洁**
+```js
+// 普通函数
+function add(a, b) {
+  return a + b
+}
+
+// 箭头函数
+const add = (a, b) => a + b
+```
+
+2. **没有自己的this**
+箭头函数不会创建自己的this，它只会从自己的作用域链的上一层继承this。
+
+```js
+const obj = {
+  name: '张三',
+  sayName: function() {
+    setTimeout(function() {
+      console.log(this.name) // undefined，this指向window
+    }, 100)
+  },
+  sayName2: function() {
+    setTimeout(() => {
+      console.log(this.name) // '张三'，this继承自外层
+    }, 100)
+  }
+}
+```
+
+3. **不能作为构造函数**
+箭头函数不能使用new关键字调用。
+
+```js
+const Person = (name) => {
+  this.name = name
+}
+// new Person('张三') // 报错：Person is not a constructor
+```
+
+4. **没有arguments对象**
+箭头函数没有自己的arguments对象，但可以使用rest参数。
+
+```js
+// 普通函数
+function fn() {
+  console.log(arguments) // [1, 2, 3]
+}
+fn(1, 2, 3)
+
+// 箭头函数
+const fn2 = (...args) => {
+  console.log(args) // [1, 2, 3]
+}
+fn2(1, 2, 3)
+```
+
+5. **不能使用yield关键字**
+箭头函数不能用作Generator函数。
+
+## 默认参数
+
+ES6允许为函数参数设置默认值。
+
+```js
+// 基本用法
+function greet(name = '游客', age = 18) {
+  console.log(`你好，${name}，今年${age}岁`)
+}
+greet() // '你好，游客，今年18岁'
+greet('张三') // '你好，张三，今年18岁'
+greet('李四', 20) // '你好，李四，今年20岁'
+
+// 默认值可以是表达式
+function getDefaultName() {
+  return '默认用户'
+}
+function greet2(name = getDefaultName()) {
+  console.log(name)
+}
+
+// 默认值可以引用其他参数
+function add(x, y = x) {
+  return x + y
+}
+add(5) // 10
+```
+
+## 闭包
+
+**什么是闭包？**
+
+闭包（Closure）是指有权访问另一个函数作用域中变量的函数。简单来说，闭包就是函数嵌套函数，内部函数可以访问外部函数的变量。
+
+**闭包的特点：**
+
+1. 函数嵌套函数
+2. 内部函数可以访问外部函数的变量
+3. 外部函数的变量不会被垃圾回收机制回收
+
+**基本示例：**
+
+```js
+function outer() {
+  const name = '张三'
+
+  function inner() {
+    console.log(name) // 访问外部函数的变量
+  }
+
+  return inner
+}
+
+const fn = outer()
+fn() // '张三'
+```
+
+**闭包的应用场景：**
+
+1. **数据私有化**
+
+```js
+function createCounter() {
+  let count = 0 // 私有变量
+
+  return {
+    increment() {
+      count++
+      return count
+    },
+    decrement() {
+      count--
+      return count
+    },
+    getCount() {
+      return count
+    }
+  }
+}
+
+const counter = createCounter()
+console.log(counter.increment()) // 1
+console.log(counter.increment()) // 2
+console.log(counter.getCount()) // 2
+console.log(counter.count) // undefined，无法直接访问
+```
+
+2. **函数柯里化**
+
+```js
+function add(a) {
+  return function(b) {
+    return a + b
+  }
+}
+
+const add5 = add(5)
+console.log(add5(3)) // 8
+console.log(add5(10)) // 15
+```
+
+3. **延迟执行**
+
+```js
+function delay(fn, time) {
+  return function(...args) {
+    setTimeout(() => {
+      fn.apply(this, args)
+    }, time)
+  }
+}
+
+const delayedLog = delay(console.log, 1000)
+delayedLog('Hello') // 1秒后输出 'Hello'
+```
+
+4. **模块化**
+
+```js
+const module = (function() {
+  let privateVar = '私有变量'
+
+  function privateMethod() {
+    console.log('私有方法')
+  }
+
+  return {
+    publicMethod() {
+      console.log('公共方法')
+      privateMethod()
+    },
+    getPrivateVar() {
+      return privateVar
+    }
+  }
+})()
+
+module.publicMethod() // '公共方法' '私有方法'
+console.log(module.getPrivateVar()) // '私有变量'
+console.log(module.privateVar) // undefined
+```
+
+**闭包的注意事项：**
+
+1. **内存泄漏**：闭包会使外部函数的变量一直保存在内存中，如果使用不当可能导致内存泄漏
+
+```js
+function createClosure() {
+  const largeData = new Array(1000000).fill('data')
+
+  return function() {
+    console.log(largeData[0])
+  }
+}
+
+const fn = createClosure() // largeData一直被引用，无法释放
+```
+
+2. **循环中的闭包问题**
+
+```js
+// 错误示例
+for (var i = 0; i < 5; i++) {
+  setTimeout(function() {
+    console.log(i) // 输出5个5
+  }, 100)
+}
+
+// 解决方案1：使用let
+for (let i = 0; i < 5; i++) {
+  setTimeout(function() {
+    console.log(i) // 输出0, 1, 2, 3, 4
+  }, 100)
+}
+
+// 解决方案2：使用闭包
+for (var i = 0; i < 5; i++) {
+  (function(j) {
+    setTimeout(function() {
+      console.log(j) // 输出0, 1, 2, 3, 4
+    }, 100)
+  })(i)
+}
+```
+
+---
+
+# 三、对象篇
+
+本篇介绍JavaScript的面向对象编程，包括new关键字、原型链、继承、class等。
+
+## new关键字的执行过程
+
+使用`new`关键字调用构造函数时，JavaScript会自动执行以下步骤：
+
+1. **创建一个新的空对象**
+   ```js
+   const obj = {}
+   ```
+
+2. **将新对象的`__proto__`指向构造函数的`prototype`**
+   ```js
+   obj.__proto__ = Constructor.prototype
+   ```
+
+3. **将构造函数内部的`this`指向新对象**
+   ```js
+   Constructor.call(obj)
+   ```
+
+4. **执行构造函数，给新对象添加属性和方法**
+   构造函数内部的代码会被执行，所有`this.xxx`都会添加到新对象上
+
+5. **返回新对象（默认return this）**
+   - 如果构造函数没有返回值，或返回的是基本数据类型（Number、String、Boolean等），则返回新创建的对象
+   - 如果构造函数返回的是对象类型（Object、Array、Function等），则返回该对象，new出来的对象会被丢弃
+
+**示例：**
+
+```js
+function Person(name, age) {
+  this.name = name
+  this.age = age
+  this.sayHi = function() {
+    console.log(`我是${this.name}`)
+  }
+}
+
+const p1 = new Person('张三', 18)
+console.log(p1.name) // '张三'
+console.log(p1.age) // 18
+p1.sayHi() // '我是张三'
+
+// 情况1: 返回基本类型，会被忽略
+function Person1(name) {
+  this.name = name
+  return 123 // 返回基本类型，会被忽略
+}
+const p2 = new Person1('李四')
+console.log(p2) // Person1 { name: '李四' }
+
+// 情况2: 返回对象类型，会覆盖new创建的对象
+function Person2(name) {
+  this.name = name
+  return { age: 20 } // 返回对象类型
+}
+const p3 = new Person2('王五')
+console.log(p3) // { age: 20 }，name属性丢失
+```
+
+## 原型链
+
+每个对象都有一个`__proto__`属性，指向其构造函数的`prototype`对象。这样就形成了一条原型链。
+
+```js
+function Person(name) {
+  this.name = name
+}
+
+Person.prototype.sayHi = function() {
+  console.log(`我是${this.name}`)
+}
+
+const p = new Person('张三')
+
+// 原型链：p -> Person.prototype -> Object.prototype -> null
+console.log(p.__proto__ === Person.prototype) // true
+console.log(Person.prototype.__proto__ === Object.prototype) // true
+console.log(Object.prototype.__proto__) // null
+```
+
+**原型链的作用：**
+- 实现继承
+- 实现属性和方法的共享
+
+**属性查找规则：**
+1. 先在对象自身查找
+2. 如果没有，沿着原型链向上查找
+3. 直到找到或到达原型链顶端（null）
+
+## 继承
+
+JavaScript中实现继承的几种方式：
+
+**1. 原型链继承**
+
+```js
+function Parent() {
+  this.name = '父类'
+}
+
+Parent.prototype.getName = function() {
+  return this.name
+}
+
+function Child() {}
+
+Child.prototype = new Parent()
+
+const child = new Child()
+console.log(child.getName()) // '父类'
+```
+
+**缺点：**
+- 所有实例共享父类的引用类型属性
+- 无法向父类构造函数传参
+
+**2. 构造函数继承**
+
+```js
+function Parent(name) {
+  this.name = name
+}
+
+function Child(name) {
+  Parent.call(this, name)
+}
+
+const child = new Child('子类')
+console.log(child.name) // '子类'
+```
+
+**缺点：**
+- 无法继承父类原型上的方法
+- 每次创建实例都会创建一遍方法
+
+**3. 组合继承（最常用）**
+
+```js
+function Parent(name) {
+  this.name = name
+}
+
+Parent.prototype.getName = function() {
+  return this.name
+}
+
+function Child(name, age) {
+  Parent.call(this, name) // 继承属性
+  this.age = age
+}
+
+Child.prototype = new Parent() // 继承方法
+Child.prototype.constructor = Child
+
+const child = new Child('张三', 18)
+console.log(child.getName()) // '张三'
+console.log(child.age) // 18
+```
+
+**4. ES6 class继承**
+
+```js
+class Parent {
+  constructor(name) {
+    this.name = name
+  }
+
+  getName() {
+    return this.name
+  }
+}
+
+class Child extends Parent {
+  constructor(name, age) {
+    super(name)
+    this.age = age
+  }
+}
+
+const child = new Child('张三', 18)
+console.log(child.getName()) // '张三'
+```
+
+## class类
+
+ES6引入了class关键字，使得面向对象编程更加清晰。
+
+```js
+// 基本用法
+class Person {
+  constructor(name, age) {
+    this.name = name
+    this.age = age
+  }
+
+  sayHi() {
+    console.log(`我是${this.name}`)
+  }
+
+  static create(name, age) {
+    return new Person(name, age)
+  }
+}
+
+const p = new Person('张三', 18)
+p.sayHi() // '我是张三'
+
+// 类的继承
+class Student extends Person {
+  constructor(name, age, grade) {
+    super(name, age)
+    this.grade = grade
+  }
+
+  sayHi() {
+    console.log(`我是${this.name}，我在${this.grade}年级`)
+  }
+}
+
+const s = new Student('小明', 15, 3)
+s.sayHi() // '我是小明，我在3年级'
+```
+
+---
+
+# 四、异步篇
+
+本篇介绍JavaScript的异步编程机制，包括回调函数、Promise、async/await、事件循环等。
+
+## 回调函数
+
+**什么是回调函数？**
+
+回调函数是把任务的第二段单独写在一个函数里面，等到重新执行这个任务的时候，就直接调用这个函数。
+
+```js
+// 基本示例
+fs.readFile('/etc/passwd', function (err, data) {
+  if (err) throw err
+  console.log(data)
+})
+
+// 回调函数示例
+function fetchData(callback) {
+  setTimeout(() => {
+    const data = { name: '张三', age: 18 }
+    callback(data)
+  }, 1000)
+}
+
+fetchData((data) => {
+  console.log('获取到数据:', data)
+})
+```
+
+**回调地狱问题：**
+
+当多个异步操作存在依赖关系时，会形成回调地狱（Callback Hell），代码难以维护。
+
+```js
+// 回调地狱示例
+getData1((data1) => {
+  getData2(data1, (data2) => {
+    getData3(data2, (data3) => {
+      getData4(data3, (data4) => {
+        console.log('最终结果:', data4)
+      })
+    })
+  })
+})
+```
+
+## Promise
+
+Promise是ES6新增的异步编程解决方案，可以解决回调地狱问题，使异步代码更加优雅。
+
+**Promise的三种状态：**
+- **pending（进行中）**：初始状态，既不是成功也不是失败
+- **fulfilled（已成功）**：操作成功完成
+- **rejected（已失败）**：操作失败
+
+状态一旦改变就不会再变，只能从pending变为fulfilled或从pending变为rejected。
+
+**基本用法：**
+
+```js
+// 创建Promise
+const promise = new Promise((resolve, reject) => {
+  // 异步操作
+  setTimeout(() => {
+    const success = true
+    if (success) {
+      resolve('成功的结果') // 将状态改为fulfilled
+    } else {
+      reject('失败的原因') // 将状态改为rejected
+    }
+  }, 1000)
+})
+
+// 使用Promise
+promise
+  .then(result => {
+    console.log(result) // '成功的结果'
+    return result + ' 处理后'
+  })
+  .then(result => {
+    console.log(result) // '成功的结果 处理后'
+  })
+  .catch(error => {
+    console.log('捕获错误:', error)
+  })
+  .finally(() => {
+    console.log('无论成功失败都会执行')
+  })
+```
+
+**Promise链式调用：**
+
+```js
+// 解决回调地狱
+getData1()
+  .then(data1 => getData2(data1))
+  .then(data2 => getData3(data2))
+  .then(data3 => getData4(data3))
+  .then(data4 => {
+    console.log('最终结果:', data4)
+  })
+  .catch(error => {
+    console.log('任何一步出错都会被捕获:', error)
+  })
+```
+
+**Promise的静态方法：**
+
+```js
+// 1. Promise.all() - 所有Promise都成功才成功
+const p1 = Promise.resolve(1)
+const p2 = Promise.resolve(2)
+const p3 = Promise.resolve(3)
+
+Promise.all([p1, p2, p3]).then(results => {
+  console.log(results) // [1, 2, 3]
+})
+
+// 只要有一个失败，就会立即reject
+const p4 = Promise.reject('错误')
+Promise.all([p1, p2, p4]).catch(error => {
+  console.log(error) // '错误'
+})
+
+// 2. Promise.race() - 返回最先完成的Promise结果
+const p5 = new Promise(resolve => setTimeout(() => resolve('慢'), 1000))
+const p6 = new Promise(resolve => setTimeout(() => resolve('快'), 100))
+
+Promise.race([p5, p6]).then(result => {
+  console.log(result) // '快'
+})
+
+// 3. Promise.allSettled() - 等待所有Promise完成（无论成功失败）
+const p7 = Promise.resolve(1)
+const p8 = Promise.reject('错误')
+const p9 = Promise.resolve(3)
+
+Promise.allSettled([p7, p8, p9]).then(results => {
+  console.log(results)
+  // [
+  //   { status: 'fulfilled', value: 1 },
+  //   { status: 'rejected', reason: '错误' },
+  //   { status: 'fulfilled', value: 3 }
+  // ]
+})
+
+// 4. Promise.any() - 返回第一个成功的Promise
+const p10 = Promise.reject('错误1')
+const p11 = Promise.reject('错误2')
+const p12 = Promise.resolve('成功')
+
+Promise.any([p10, p11, p12]).then(result => {
+  console.log(result) // '成功'
+})
+
+// 如果所有Promise都失败，返回AggregateError
+Promise.any([p10, p11]).catch(error => {
+  console.log(error) // AggregateError: All promises were rejected
+})
+
+// 5. Promise.resolve() - 将值转换为Promise
+Promise.resolve('hello').then(value => {
+  console.log(value) // 'hello'
+})
+
+// 6. Promise.reject() - 返回一个rejected状态的Promise
+Promise.reject('错误').catch(error => {
+  console.log(error) // '错误'
+})
+```
+
+## async/await
+
+async/await是ES2017引入的语法糖，基于Promise实现，使异步代码看起来像同步代码，更加直观易读。
+
+**基本用法：**
+
+```js
+// async函数总是返回Promise
+async function getData() {
+  return '数据' // 相当于 return Promise.resolve('数据')
+}
+
+getData().then(data => console.log(data)) // '数据'
+
+// await等待Promise完成
+async function fetchData() {
+  const promise = new Promise(resolve => {
+    setTimeout(() => resolve('异步数据'), 1000)
+  })
+
+  const result = await promise // 等待Promise完成
+  console.log(result) // '异步数据'
+  return result
+}
+
+fetchData()
+```
+
+**错误处理：**
+
+```js
+// 使用try-catch捕获错误
+async function fetchDataWithError() {
+  try {
+    const result = await Promise.reject('出错了')
+    console.log(result)
+  } catch (error) {
+    console.log('捕获到错误:', error) // '捕获到错误: 出错了'
+  }
+}
+
+// 不使用try-catch，错误会被返回的Promise捕获
+async function fetchData2() {
+  const result = await Promise.reject('出错了')
+  return result
+}
+
+fetchData2().catch(error => {
+  console.log('Promise捕获错误:', error)
+})
+```
+
+**并发执行：**
+
+```js
+// 串行执行（耗时长）
+async function serial() {
+  const result1 = await fetch('/api/1') // 等待1秒
+  const result2 = await fetch('/api/2') // 等待1秒
+  const result3 = await fetch('/api/3') // 等待1秒
+  // 总耗时: 3秒
+}
+
+// 并发执行（耗时短）
+async function parallel() {
+  const [result1, result2, result3] = await Promise.all([
+    fetch('/api/1'),
+    fetch('/api/2'),
+    fetch('/api/3')
+  ])
+  // 总耗时: 1秒（同时发起请求）
+}
+
+// 使用Promise.all并发
+async function fetchMultiple() {
+  const urls = ['/api/1', '/api/2', '/api/3']
+  const promises = urls.map(url => fetch(url))
+  const results = await Promise.all(promises)
+  return results
+}
+```
+
+**实际应用示例：**
+
+```js
+// 顺序获取用户信息和订单信息
+async function getUserData(userId) {
+  try {
+    // 1. 获取用户信息
+    const user = await fetch(`/api/users/${userId}`).then(res => res.json())
+    console.log('用户信息:', user)
+
+    // 2. 根据用户ID获取订单
+    const orders = await fetch(`/api/orders?userId=${userId}`).then(res => res.json())
+    console.log('订单信息:', orders)
+
+    // 3. 返回完整数据
+    return { user, orders }
+  } catch (error) {
+    console.error('获取数据失败:', error)
+    throw error
+  }
+}
+
+// 使用
+getUserData(123).then(data => {
+  console.log('完整数据:', data)
+})
+```
+
+**async/await vs Promise：**
+
+```js
+// Promise写法
+function getDataPromise() {
+  return fetch('/api/data')
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+      return data
+    })
+    .catch(error => {
+      console.error(error)
+    })
+}
+
+// async/await写法（更清晰）
+async function getDataAsync() {
+  try {
+    const response = await fetch('/api/data')
+    const data = await response.json()
+    console.log(data)
+    return data
+  } catch (error) {
+    console.error(error)
+  }
+}
+```
+
+## 事件循环
+
+JavaScript是单线程的，通过事件循环（Event Loop）机制来处理异步任务。
+
+**执行流程：**
+1. 同步任务在主线程上执行，形成执行栈
+2. 异步任务的回调函数放入任务队列
+3. 执行栈清空后，读取任务队列，将回调函数压入执行栈执行
+4. 重复以上步骤
+
+## 宏任务&微任务
+
+**宏任务（Macro Task）：**
+- setTimeout
+- setInterval
+- setImmediate（Node.js）
+- I/O操作
+- UI渲染
+
+**微任务（Micro Task）：**
+- Promise.then/catch/finally
+- async/await
+- MutationObserver
+- process.nextTick（Node.js）
+
+**执行顺序：**
+1. 执行一个宏任务
+2. 执行所有微任务
+3. 渲染（如果需要）
+4. 执行下一个宏任务
+
+**示例代码：**
+
+```js
+console.log('1') // 同步任务
+
+setTimeout(() => {
+  console.log('2') // 宏任务
+}, 0)
+
+Promise.resolve().then(() => {
+  console.log('3') // 微任务
+})
+
+console.log('4') // 同步任务
+
+// 输出顺序：1 4 3 2
+// 解释：
+// 1. 执行同步任务：1, 4
+// 2. 执行微任务：3
+// 3. 执行宏任务：2
+```
+
+**复杂示例：**
+
+```js
+console.log('start')
+
+setTimeout(() => {
+  console.log('setTimeout1')
+  Promise.resolve().then(() => {
+    console.log('promise1')
+  })
+}, 0)
+
+Promise.resolve().then(() => {
+  console.log('promise2')
+  setTimeout(() => {
+    console.log('setTimeout2')
+  }, 0)
+})
+
+console.log('end')
+
+// 输出顺序：start end promise2 setTimeout1 promise1 setTimeout2
+```
+
+---
+
+# 五、ES6+篇
+
+本篇介绍ES6及之后版本的新特性，包括let/const、解构赋值、模板字符串、Set/Map等。
+
+## let const
+
+**var、let、const的区别：**
+
+1. **作用域不同**
+   - var声明的变量作用域是函数级别的
+   - let和const声明的变量作用域是块级别的
+
+2. **变量提升**
+   - var声明的变量可以在声明之前访问，值为undefined
+   - let和const声明的变量在声明之前访问会抛出ReferenceError
+
+3. **重复声明**
+   - var声明的变量可以被重复声明
+   - let和const声明的变量不允许重复声明
+
+4. **重新赋值**
+   - let声明的变量可以被重新赋值
+   - const声明的变量是不可变的，其值不能被重新赋值
+
+5. **初始化要求**
+   - const声明的变量必须在声明时初始化
+
+详细说明请参考 [变量声明](#变量声明) 章节。
+
+## Set&Map
+
+**Set**
+
+Set是ES6新增的数据结构，类似于数组，但成员的值都是唯一的，没有重复的值。
+
+```js
+// 创建Set
+const set = new Set([1, 2, 3, 3, 4])
+console.log(set) // Set(4) {1, 2, 3, 4}
+
+// 常用方法
+set.add(5) // 添加元素
+set.delete(2) // 删除元素
+set.has(3) // 判断是否包含某元素
+set.clear() // 清空
+set.size // 获取元素个数
+
+// 遍历方法
+set.forEach(value => console.log(value))
+for (let item of set) {
+  console.log(item)
+}
+
+// 应用：数组去重
+const arr = [1, 2, 2, 3, 3, 4]
+const uniqueArr = [...new Set(arr)] // [1, 2, 3, 4]
+```
+
+**Map**
+
+Map是ES6新增的数据结构，类似于对象，但键可以是任意类型的值。
+
+```js
+// 创建Map
+const map = new Map()
+
+// 常用方法
+map.set('name', '张三') // 设置键值对
+map.set(123, '数字键')
+map.set({}, '对象键')
+map.get('name') // '张三' 获取值
+map.has('name') // true 判断是否包含某键
+map.delete('name') // 删除键值对
+map.clear() // 清空
+map.size // 获取键值对个数
+
+// 遍历方法
+map.forEach((value, key) => console.log(key, value))
+for (let [key, value] of map) {
+  console.log(key, value)
+}
+```
+
+**Set和Map的区别：**
+- Set是值的集合，Map是键值对的集合
+- Set的值是唯一的，Map的键是唯一的
+- Set用于数组去重，Map用于存储键值对
+
+## 解构赋值
+
+解构赋值是ES6新增的语法，可以从数组或对象中提取值，赋给变量。
+
+**数组解构：**
+
+```js
+// 基本用法
+const [a, b, c] = [1, 2, 3]
+console.log(a, b, c) // 1 2 3
+
+// 跳过某些值
+const [x, , z] = [1, 2, 3]
+console.log(x, z) // 1 3
+
+// 剩余运算符
+const [first, ...rest] = [1, 2, 3, 4, 5]
+console.log(first) // 1
+console.log(rest) // [2, 3, 4, 5]
+
+// 默认值
+const [a, b, c = 3] = [1, 2]
+console.log(c) // 3
+
+// 交换变量
+let m = 1, n = 2;
+[m, n] = [n, m]
+console.log(m, n) // 2 1
+```
+
+**对象解构：**
+
+```js
+// 基本用法
+const { name, age } = { name: '张三', age: 18 }
+console.log(name, age) // '张三' 18
+
+// 重命名
+const { name: userName, age: userAge } = { name: '李四', age: 20 }
+console.log(userName, userAge) // '李四' 20
+
+// 默认值
+const { name, age, gender = '男' } = { name: '王五', age: 22 }
+console.log(gender) // '男'
+
+// 嵌套解构
+const user = {
+  name: '赵六',
+  info: {
+    age: 25,
+    address: '北京'
+  }
+}
+const { name, info: { age, address } } = user
+console.log(name, age, address) // '赵六' 25 '北京'
+
+// 函数参数解构
+function greet({ name, age }) {
+  console.log(`我是${name}，今年${age}岁`)
+}
+greet({ name: '小明', age: 18 }) // '我是小明，今年18岁'
+```
+
+**字符串解构：**
+
+```js
+const [a, b, c] = 'hello'
+console.log(a, b, c) // 'h' 'e' 'l'
+```
+
+## 模板字符串
+
+模板字符串使用反引号（\`）包裹，可以包含占位符`${}`。
+
+```js
+// 基本用法
+const name = '张三'
+const age = 18
+console.log(`我是${name}，今年${age}岁`) // '我是张三，今年18岁'
+
+// 多行字符串
+const message = `
+  第一行
+  第二行
+  第三行
+`
+
+// 表达式计算
+const a = 10, b = 20
+console.log(`${a} + ${b} = ${a + b}`) // '10 + 20 = 30'
+
+// 调用函数
+function upper(str) {
+  return str.toUpperCase()
+}
+console.log(`Hello ${upper('world')}`) // 'Hello WORLD'
+```
+
+## 扩展运算符
+
+扩展运算符（...）可以将数组或对象展开。
+
+```js
+// 数组扩展
+const arr1 = [1, 2, 3]
+const arr2 = [...arr1, 4, 5, 6] // [1, 2, 3, 4, 5, 6]
+
+// 数组合并
+const arr3 = [1, 2]
+const arr4 = [3, 4]
+const merged = [...arr3, ...arr4] // [1, 2, 3, 4]
+
+// 数组拷贝
+const original = [1, 2, 3]
+const copy = [...original] // [1, 2, 3]
+
+// 对象扩展
+const obj1 = { a: 1, b: 2 }
+const obj2 = { ...obj1, c: 3 } // { a: 1, b: 2, c: 3 }
+
+// 对象合并
+const obj3 = { a: 1 }
+const obj4 = { b: 2 }
+const mergedObj = { ...obj3, ...obj4 } // { a: 1, b: 2 }
+
+// 函数参数
+function sum(...numbers) {
+  return numbers.reduce((acc, cur) => acc + cur, 0)
+}
+sum(1, 2, 3, 4, 5) // 15
+```
+
+## for in & for of
+
+**for...in**：遍历对象的可枚举属性（包括原型链上的属性）
+
+```js
+const obj = { a: 1, b: 2, c: 3 }
+for (let key in obj) {
+  console.log(key, obj[key]) // a 1, b 2, c 3
+}
+```
+
+**for...of**：遍历可迭代对象的值（数组、字符串、Map、Set等）
+
+```js
+const arr = [1, 2, 3]
+for (let value of arr) {
+  console.log(value) // 1, 2, 3
+}
+```
+
+**区别：**
+- for...in遍历的是键名，for...of遍历的是键值
+- for...in可以遍历对象，for...of不能遍历普通对象
+- for...of可以使用break、continue、return
+
+---
+
+# 六、常用API篇
+
+本篇整理了JavaScript中常用的数组、字符串、对象方法。
+
+## 数组的常用方法有哪些?
+
+**改变原数组的方法：**
+
+- `push()`：将参数添加到原数组末尾，并返回数组的长度
+- `pop()`：删除原数组最后一项，并返回删除元素的值；如果数组为空则返回undefined
+- `shift()`：删除原数组第一项，并返回删除元素的值；如果数组为空则返回undefined
+- `unshift()`：将参数添加到原数组开头，并返回数组的长度
+- `splice(start, deleteCount, val1, val2, ...)`：从start位置开始删除deleteCount项，并从该位置起插入新元素
+- `sort(compareFunction)`：按指定的参数对数组进行排序
+- `reverse()`：将数组反序
+- `fill(value, start, end)`：使用特定值填充数组中的一个或多个元素
+- `copyWithin(target, start, end)`：从数组的指定位置拷贝元素到数组的另一个指定位置中
+
+**不改变原数组的方法：**
+
+- `join(separator)`：将数组的元素组成一个字符串，以separator为分隔符，省略的话则用默认用逗号为分隔符
+- `slice(start, end)`：截取数组某部分的元素为一个新的数组，第一个参数是起始位置，第二个是结束位置(不包含end)
+- `concat()`：将两个或多个数组合并在一起，返回新数组
+- `indexOf(value)`：返回当前值在数组中第一次出现位置的索引，没有则返回-1
+- `lastIndexOf(value)`：返回当前值在数组中最后出现位置的索引，没有则返回-1
+- `includes(value)`：判断一个数组是否包含指定的值，返回布尔值
+- `toString()`、`toLocaleString()`：将数组转换为字符串
+
+**遍历方法：**
+
+- `forEach(callback)`：循环遍历数组每一项，没有返回值
+- `map(callback)`：循环遍历数组的每一项，返回新数组
+- `filter(callback)`：过滤数组，返回满足条件的新数组
+- `find(callback)`：返回第一个匹配的值，并停止查找
+- `findIndex(callback)`：返回第一个匹配值的索引，并停止查找
+- `every(callback)`：判断数组中每一项是否都符合条件，返回布尔值
+- `some(callback)`：判断数组中是否存在满足条件的项，返回布尔值
+- `reduce(callback, initialValue)`：将数组元素累加为一个值（从左到右）
+- `reduceRight(callback, initialValue)`：将数组元素累加为一个值（从右到左）
+
+**其他方法：**
+
+- `flat(depth)`：将嵌套数组扁平化，depth指定展开深度，默认为1
+- `flatMap(callback)`：先map再flat(深度为1)
+- `entries()`：返回数组的键值对迭代器
+- `keys()`：返回数组的键迭代器
+- `values()`：返回数组的值迭代器
+
+**reduce和reduceRight详解：**
+
+```js
+// reduce: 从左到右累加
+const arr = [1, 2, 3, 4, 5]
+
+// 求和
+const sum = arr.reduce((acc, cur) => acc + cur, 0) // 15
+
+// 求最大值
+const max = arr.reduce((acc, cur) => Math.max(acc, cur)) // 5
+
+// 数组去重
+const arr2 = [1, 2, 2, 3, 3, 4]
+const unique = arr2.reduce((acc, cur) => {
+  if (!acc.includes(cur)) {
+    acc.push(cur)
+  }
+  return acc
+}, []) // [1, 2, 3, 4]
+
+// 对象数组转对象
+const users = [
+  { id: 1, name: '张三' },
+  { id: 2, name: '李四' }
+]
+const userMap = users.reduce((acc, cur) => {
+  acc[cur.id] = cur
+  return acc
+}, {}) // { 1: { id: 1, name: '张三' }, 2: { id: 2, name: '李四' } }
+
+// reduceRight: 从右到左累加
+const arr3 = ['a', 'b', 'c', 'd']
+const reversed = arr3.reduceRight((acc, cur) => {
+  acc.push(cur)
+  return acc
+}, []) // ['d', 'c', 'b', 'a']
+```
+
+## 字符串常用方法
+
+**查找和检索：**
+
+- `charAt(index)`：返回指定位置的字符
+- `charCodeAt(index)`：返回指定位置字符的Unicode编码
+- `indexOf(searchValue, fromIndex)`：返回某个指定字符串值在字符串中首次出现的位置，没有则返回-1
+- `lastIndexOf(searchValue, fromIndex)`：从后向前搜索，返回最后一次出现的位置
+- `search(regexp)`：检索字符串中指定的子字符串，或检索与正则表达式相匹配的子字符串
+- `match(regexp)`：在字符串内检索指定的值，或找到一个或多个正则表达式的匹配
+- `matchAll(regexp)`：返回一个包含所有匹配正则表达式的结果的迭代器
+
+**截取和拼接：**
+
+- `slice(start, end)`：提取字符串的某个部分，返回新字符串（支持负数）
+- `substring(start, end)`：提取字符串中两个指定的索引号之间的字符（不支持负数）
+- `substr(start, length)`：从起始索引号提取字符串中指定数目的字符（已废弃）
+- `concat(str1, str2, ...)`：连接两个或多个字符串
+- `split(separator, limit)`：把字符串分割为字符串数组
+
+**大小写转换：**
+
+- `toLowerCase()`：把字符串转换为小写
+- `toUpperCase()`：把字符串转换为大写
+- `toLocaleLowerCase()`：根据本地主机的语言环境把字符串转换为小写
+- `toLocaleUpperCase()`：根据本地主机的语言环境把字符串转换为大写
+
+**修改和替换：**
+
+- `replace(searchValue, replaceValue)`：替换字符串中的某些字符（只替换第一个匹配）
+- `replaceAll(searchValue, replaceValue)`：替换所有匹配的字符串
+- `trim()`：去除字符串两端的空白字符
+- `trimStart()` / `trimLeft()`：去除字符串开头的空白字符
+- `trimEnd()` / `trimRight()`：去除字符串末尾的空白字符
+- `padStart(targetLength, padString)`：在字符串开头填充指定字符，直到达到指定长度
+- `padEnd(targetLength, padString)`：在字符串末尾填充指定字符，直到达到指定长度
+- `repeat(count)`：返回一个新字符串，表示将原字符串重复n次
+
+**判断：**
+
+- `startsWith(searchString, position)`：判断字符串是否以指定的子字符串开始
+- `endsWith(searchString, length)`：判断字符串是否以指定的子字符串结束
+- `includes(searchString, position)`：判断字符串是否包含指定的子字符串
+
+**其他：**
+
+- `length`：返回字符串的长度
+- `toString()`：返回字符串
+- `valueOf()`：返回字符串对象的原始值
+
+## 对象常用方法
+
+**创建和原型：**
+
+- `Object.create(proto, propertiesObject)`：创建一个新对象，使用现有的对象作为新对象的原型
+- `Object.getPrototypeOf(obj)`：返回指定对象的原型
+- `Object.setPrototypeOf(obj, prototype)`：设置对象的原型
+
+**属性操作：**
+
+- `Object.keys(obj)`：返回对象自身可枚举属性的键组成的数组
+- `Object.values(obj)`：返回对象自身可枚举属性的值组成的数组
+- `Object.entries(obj)`：返回对象自身可枚举属性的键值对数组
+- `Object.fromEntries(entries)`：将键值对数组转换为对象
+- `Object.getOwnPropertyNames(obj)`：返回对象所有自身属性的键名（包括不可枚举属性）
+- `Object.getOwnPropertySymbols(obj)`：返回对象所有Symbol属性的数组
+
+**属性描述符：**
+
+- `Object.getOwnPropertyDescriptor(obj, prop)`：返回对象指定属性的描述符
+- `Object.getOwnPropertyDescriptors(obj)`：返回对象所有自身属性的描述符
+- `Object.defineProperty(obj, prop, descriptor)`：定义对象的新属性或修改现有属性
+- `Object.defineProperties(obj, props)`：定义对象的多个新属性或修改多个现有属性
+
+**对象操作：**
+
+- `Object.assign(target, ...sources)`：将所有可枚举属性从一个或多个源对象复制到目标对象
+- `Object.freeze(obj)`：冻结对象，不能添加、删除、修改属性
+- `Object.seal(obj)`：密封对象，不能添加、删除属性，但可以修改现有属性
+- `Object.preventExtensions(obj)`：阻止对象扩展，不能添加新属性
+- `Object.isFrozen(obj)`：判断对象是否被冻结
+- `Object.isSealed(obj)`：判断对象是否被密封
+- `Object.isExtensible(obj)`：判断对象是否可扩展
+
+**判断：**
+
+- `Object.is(value1, value2)`：判断两个值是否相同（比===更严格）
+- `Object.hasOwn(obj, prop)`：判断对象是否有指定的自身属性（ES2022）
+- `obj.hasOwnProperty(prop)`：判断对象是否有指定的自身属性
+- `obj.isPrototypeOf(obj)`：判断对象是否在另一个对象的原型链上
+
+# 七、浏览器篇
+
+本篇介绍浏览器相关的知识点，包括存储机制、跨域解决方案等。
+
+## Cookie、LocalStorage、SessionStorage
+
+**对比表格：**
+
+| 特性 | Cookie | LocalStorage | SessionStorage |
+|------|--------|--------------|----------------|
+| 存储大小 | 4KB左右 | 5MB左右 | 5MB左右 |
+| 生命周期 | 可设置过期时间 | 永久，除非手动清除 | 页面会话期间 |
+| 与服务器通信 | 每次HTTP请求都会携带 | 不参与服务器通信 | 不参与服务器通信 |
+| 作用域 | 同源且符合path规则 | 同源 | 同源且同窗口 |
+| 易用性 | 需要自己封装 | 使用简单 | 使用简单 |
+
+**Cookie详解：**
+
+```js
+// 设置cookie
+document.cookie = 'name=张三'
+document.cookie = 'age=18; expires=Thu, 18 Dec 2025 12:00:00 GMT; path=/'
+
+// 读取cookie
+console.log(document.cookie) // 'name=张三; age=18'
+
+// 删除cookie（设置过期时间为过去）
+document.cookie = 'name=; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+
+// Cookie属性
+// - expires: 过期时间
+// - max-age: 有效期（秒）
+// - path: 路径
+// - domain: 域名
+// - secure: 只在HTTPS传输
+// - httpOnly: 禁止JavaScript访问（服务端设置）
+// - sameSite: 限制第三方Cookie
+```
+
+**LocalStorage详解：**
+
+```js
+// 存储数据
+localStorage.setItem('name', '张三')
+localStorage.setItem('age', 18)
+
+// 读取数据
+localStorage.getItem('name') // '张三'
+
+// 删除数据
+localStorage.removeItem('name')
+
+// 清空所有数据
+localStorage.clear()
+
+// 获取键名
+localStorage.key(0) // 获取第一个键名
+
+// 获取数量
+localStorage.length
+
+// 存储对象（需要转换）
+const user = { name: '张三', age: 18 }
+localStorage.setItem('user', JSON.stringify(user))
+const savedUser = JSON.parse(localStorage.getItem('user'))
+```
+
+**SessionStorage详解：**
+
+```js
+// API与localStorage完全相同
+sessionStorage.setItem('name', '张三')
+sessionStorage.getItem('name')
+sessionStorage.removeItem('name')
+sessionStorage.clear()
+
+// 区别：关闭标签页或浏览器后数据会被清除
+```
+
+**监听存储变化：**
+
+```js
+// 监听storage事件（只能监听其他页面的修改）
+window.addEventListener('storage', (e) => {
+  console.log('键名:', e.key)
+  console.log('旧值:', e.oldValue)
+  console.log('新值:', e.newValue)
+  console.log('URL:', e.url)
+})
+```
+
+**使用场景：**
+
+- **Cookie**: 用户身份验证、会话管理、跟踪用户行为
+- **LocalStorage**: 持久化存储、用户偏好设置、购物车（不需要登录）
+- **SessionStorage**: 表单数据暂存、单页面数据传递
+
+**安全建议：**
+
+1. 不要存储敏感信息（密码、信用卡号等）
+2. 对存储的数据进行加密
+3. 设置HttpOnly防止XSS攻击
+4. 使用Secure属性确保HTTPS传输
+5. 定期清理过期数据
+
+---
+
+# 八、工程化篇
+
+本篇介绍前端工程化相关的知识点，包括数据处理、性能优化、错误处理等。
+
+## 数组转树形结构
+
+**方法一：递归函数**
+
+```js
+function transArrToTree(list,pid) {
+  const arr = []
+  list.forEach(item => {
+    if(item.pid === pid) {
+      item.children = transArrToTree(list,item.id)
+      arr.push(item)
+    }
+  })
+  return arr
+}
+```
+
+**方法二：map映射**
+
+```js
+export function transListToTreeUseMap(list) {
+  const arr = []
+  const map = {}
+  list.forEach(item => {
+    item.children = []
+    map[item.id] = item
+  })
+  list.forEach(item => {
+    if (map[item.pid]) {
+      map[item.pid].children.push(item)
+    } else {
+      arr.push(item)
+    }
+  })
+  return arr
+}
+```
+
+**实现思路：**
+
+1. 首先定义一个空数组 `arr` 和一个空对象 `map`。
+2. 遍历传入的列表 `list`，为每个节点添加一个空的 `children` 数组，并将节点对象以 `id` 为键，以节点对象本身为值，存入 `map` 对象中。
+3. 再次遍历传入的列表 `list`，对于每个节点，如果其父节点在 `map` 对象中存在，则将该节点添加到其父节点的 `children` 数组中；否则，将该节点添加到 `arr` 数组中。
+4. 最后返回 `arr` 数组，即为转换后的树形结构数据。
+
+这段代码的主要思路是利用一个对象 `map` 来存储每个节点对象，以便在后续遍历中快速查找其父节点，并将其添加到父节点的 `children` 数组中。
+
+## 树形扁平化转数组
+
+**递归函数实现：**
+
+```js
+function dataFattening (data) {
+  const arr = []
+  data.forEach(item => {
+    if(item.children?.length) {
+      arr = [ ...arr, ...dataFattening(item.children) ]
+    } else {
+      arr.push(item)
+    }
+  })
+  return arr
+}
+```
+
+**实现思路：**
+
+1. 定义一个空数组 `arr`。
+2. 遍历传入的树形结构数据 `data`，对于每个节点，判断其是否有子节点，如果有，则递归调用 `dataFattening` 函数，将子节点扁平化后合并到 `arr` 数组中；否则，将该节点直接添加到 `arr` 数组中。
+3. 最后返回 `arr` 数组，即为扁平化后的数据。
+
+这段代码的主要思路是利用递归函数将嵌套的树形结构数据转换成扁平化的数组。在递归过程中，对于每个节点，如果它有子节点，则递归调用函数处理子节点，并将子节点扁平化后的结果合并到当前节点的扁平化结果中。如果当前节点没有子节点，则直接将当前节点添加到扁平化结果中。
+
+**注意：** 在这段代码中使用了可选链操作符 `?.`，它用于判断一个对象是否有某个属性或方法，如果有则返回该属性或方法的值，否则返回 `undefined`。这样可以避免在访问不存在的属性或方法时出现报错，提高代码的健壮性。
+
+## 深拷贝
+
+**浅拷贝 vs 深拷贝：**
+
+**浅拷贝**：只复制对象的第一层属性，如果属性值是引用类型，则复制的是引用地址。
+
+```js
+// 浅拷贝的几种方式
+const arr1 = [1, 2, 3]
+const arr2 = arr1.slice()
+const arr3 = arr1.concat()
+const arr4 = [...arr1]
+```
+
+**深拷贝**：递归复制对象的所有层级，创建一个完全独立的新对象。
+
+**深拷贝的实现方式：**
+
+```js
+// 1. JSON方法（简单但有限制）
+const obj1 = { a: 1, b: { c: 2 } }
+const obj2 = JSON.parse(JSON.stringify(obj1))
+
+// 限制：
+// - 无法复制函数、undefined、Symbol
+// - 无法处理循环引用
+// - 会丢失Date对象、RegExp对象
+
+// 2. 递归实现深拷贝
+function deepClone(obj, hash = new WeakMap()) {
+  if (obj === null) return obj
+  if (obj instanceof Date) return new Date(obj)
+  if (obj instanceof RegExp) return new RegExp(obj)
+  if (typeof obj !== 'object') return obj
+
+  // 处理循环引用
+  if (hash.has(obj)) return hash.get(obj)
+
+  const cloneObj = new obj.constructor()
+  hash.set(obj, cloneObj)
+
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      cloneObj[key] = deepClone(obj[key], hash)
+    }
+  }
+  return cloneObj
+}
+
+// 3. 使用lodash库
+// const obj2 = _.cloneDeep(obj1)
+```
+
+## 防抖节流
+
+**防抖（Debounce）**：在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时。
+
+**应用场景：**
+- 搜索框输入联想
+- 窗口resize事件
+- 表单验证
+
+```js
+function debounce(fn, delay) {
+  let timer = null
+  return function(...args) {
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => {
+      fn.apply(this, args)
+    }, delay)
+  }
+}
+
+// 使用
+const handleInput = debounce(function(e) {
+  console.log('搜索:', e.target.value)
+}, 500)
+```
+
+**节流（Throttle）**：规定在一个单位时间内，只能触发一次函数。如果这个单位时间内触发多次函数，只有一次生效。
+
+**应用场景：**
+- 滚动加载
+- 按钮点击
+- 鼠标移动
+
+```js
+function throttle(fn, delay) {
+  let lastTime = 0
+  return function(...args) {
+    const now = Date.now()
+    if (now - lastTime >= delay) {
+      fn.apply(this, args)
+      lastTime = now
+    }
+  }
+}
+
+// 使用
+const handleScroll = throttle(function() {
+  console.log('滚动事件触发')
+}, 1000)
+```
+
+**区别：**
+- 防抖：多次触发，只执行最后一次
+- 节流：多次触发，按固定频率执行
+
+## 内存泄漏
+
+内存泄漏是指程序中已分配的内存由于某种原因未释放或无法释放，造成系统内存的浪费。
+
+**常见的内存泄漏场景：**
+
+1. **意外的全局变量**
+```js
+function foo() {
+  bar = '意外的全局变量' // 没有用var/let/const声明
+}
+```
+
+2. **被遗忘的定时器**
+```js
+const timer = setInterval(() => {
+  // 一些操作
+}, 1000)
+// 忘记clearInterval(timer)
+```
+
+3. **闭包引用**
+```js
+function outer() {
+  const largeData = new Array(1000000)
+  return function inner() {
+    console.log(largeData.length)
+  }
+}
+const fn = outer() // largeData一直被引用，无法释放
+```
+
+4. **DOM引用**
+```js
+const elements = []
+function addElement() {
+  const div = document.createElement('div')
+  elements.push(div) // 即使div从DOM中移除，仍被引用
+}
+```
+
+5. **事件监听器未移除**
+```js
+const element = document.getElementById('button')
+element.addEventListener('click', onClick)
+// 忘记removeEventListener
+```
+
+**如何避免内存泄漏：**
+- 及时清除定时器
+- 移除事件监听器
+- 避免不必要的全局变量
+- 合理使用闭包
+- 及时清除DOM引用
+
+## 事件委托&事件冒泡
+
+**事件冒泡（Event Bubbling）**
+
+事件冒泡是指当一个元素上触发某个事件时，该事件会从该元素开始向上冒泡到祖先元素，直到到达文档根节点。在事件冒泡过程中，可以通过事件对象的target属性来获取当前触发事件的元素。
+
+事件冒泡机制的优点是可以在父元素上统一处理多个子元素的事件，从而减少代码量和提高性能。同时，也可以方便地通过事件委托来实现动态绑定和解绑事件处理程序的需求。但是，如果不加以控制，事件冒泡也可能会导致意外的事件触发和处理，从而影响应用程序的稳定性和可靠性。因此，在实际应用中需要谨慎使用事件冒泡和事件委托技术，合理控制事件的传播和处理。
+
+**事件委托（Event Delegation）**
+
+事件委托是一种常见的优化技巧，它利用了事件的冒泡机制来减少事件处理程序的数量。事件委托的核心思想是将事件处理程序绑定到父元素上，而不是绑定到每个子元素上。当子元素上触发事件时，事件会冒泡到父元素，由父元素上的事件处理程序来处理。
+
+例如，如果我们需要对一个列表中的每个项绑定点击事件，我们可以绑定一个事件处理程序到列表的父元素上，然后通过事件委托来处理每个子元素的点击事件。这样就可以避免在每个子元素上都绑定一个事件处理程序，从而提高性能和代码的可维护性。
+
+**示例代码：**
+
+```js
+// 不使用事件委托
+const items = document.querySelectorAll('.item')
+items.forEach(item => {
+  item.addEventListener('click', function() {
+    console.log('点击了', this.textContent)
+  })
+})
+
+// 使用事件委托
+const list = document.querySelector('.list')
+list.addEventListener('click', function(e) {
+  if (e.target.classList.contains('item')) {
+    console.log('点击了', e.target.textContent)
+  }
+})
+```
+
+## 前端如何捕获错误
+
+**1. try-catch**
+
+```js
+try {
+  // 可能出错的代码
+  JSON.parse('invalid json')
+} catch (error) {
+  console.error('捕获到错误:', error)
+}
+```
+
+**2. window.onerror**
+
+```js
+window.onerror = function(message, source, lineno, colno, error) {
+  console.log('全局错误:', message)
+  return true // 返回true阻止默认处理
+}
+```
+
+**3. window.addEventListener('error')**
+
+```js
+window.addEventListener('error', (event) => {
+  console.log('捕获到错误:', event.error)
+}, true)
+```
+
+**4. Promise错误捕获**
+
+```js
+// Promise.catch
+promise.catch(error => {
+  console.error('Promise错误:', error)
+})
+
+// unhandledrejection事件
+window.addEventListener('unhandledrejection', event => {
+  console.error('未处理的Promise错误:', event.reason)
+})
+```
+
+---
+
+# 九、手写实现篇
+
+本篇包含常见的手写实现题目。
+
+## 手写call
+
+```js
+Function.prototype.myCall = function(context, ...args) {
+  // 判断context是否传入，如果未传入则设置为window
+  context = context || window
+  // 将调用函数设为对象的方法
+  const fn = Symbol('fn')
+  context[fn] = this
+  // 执行该函数
+  const result = context[fn](...args)
+  // 删除该函数
+  delete context[fn]
+  // 返回结果
+  return result
+}
+```
+
+### 手写apply
+
+```js
+Function.prototype.myApply = function(context, args) {
+  context = context || window
+  const fn = Symbol('fn')
+  context[fn] = this
+  const result = context[fn](...args)
+  delete context[fn]
+  return result
+}
+```
+
+### 手写bind
+
+```js
+Function.prototype.myBind = function(context, ...args1) {
+  const fn = this
+  return function(...args2) {
+    return fn.apply(context, [...args1, ...args2])
+  }
+}
+```
+
+### 手写new
+
+```js
+function myNew(constructor, ...args) {
+  // 1. 创建一个空对象
+  const obj = {}
+  // 2. 将对象的__proto__指向构造函数的prototype
+  obj.__proto__ = constructor.prototype
+  // 3. 将构造函数的this指向obj，并执行构造函数
+  const result = constructor.apply(obj, args)
+  // 4. 如果构造函数返回的是对象，则返回该对象，否则返回obj
+  return result instanceof Object ? result : obj
+}
+```
+
+### 手写instanceof
+
+```js
+function myInstanceof(left, right) {
+  // 获取对象的原型
+  let proto = Object.getPrototypeOf(left)
+  // 获取构造函数的prototype
+  const prototype = right.prototype
+
+  // 判断构造函数的prototype是否在对象的原型链上
+  while (true) {
+    if (!proto) return false
+    if (proto === prototype) return true
+    // 如果没有找到，就继续从其原型上找
+    proto = Object.getPrototypeOf(proto)
+  }
+}
+```
+
+### 手写Promise
+
+```js
+class MyPromise {
+  constructor(executor) {
+    this.state = 'pending'
+    this.value = undefined
+    this.reason = undefined
+    this.onFulfilledCallbacks = []
+    this.onRejectedCallbacks = []
+
+    const resolve = (value) => {
+      if (this.state === 'pending') {
+        this.state = 'fulfilled'
+        this.value = value
+        this.onFulfilledCallbacks.forEach(fn => fn())
+      }
+    }
+
+    const reject = (reason) => {
+      if (this.state === 'pending') {
+        this.state = 'rejected'
+        this.reason = reason
+        this.onRejectedCallbacks.forEach(fn => fn())
+      }
+    }
+
+    try {
+      executor(resolve, reject)
+    } catch (error) {
+      reject(error)
+    }
+  }
+
+  then(onFulfilled, onRejected) {
+    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value
+    onRejected = typeof onRejected === 'function' ? onRejected : reason => { throw reason }
+
+    const promise2 = new MyPromise((resolve, reject) => {
+      if (this.state === 'fulfilled') {
+        setTimeout(() => {
+          try {
+            const x = onFulfilled(this.value)
+            resolve(x)
+          } catch (error) {
+            reject(error)
+          }
+        })
+      }
+
+      if (this.state === 'rejected') {
+        setTimeout(() => {
+          try {
+            const x = onRejected(this.reason)
+            resolve(x)
+          } catch (error) {
+            reject(error)
+          }
+        })
+      }
+
+      if (this.state === 'pending') {
+        this.onFulfilledCallbacks.push(() => {
+          setTimeout(() => {
+            try {
+              const x = onFulfilled(this.value)
+              resolve(x)
+            } catch (error) {
+              reject(error)
+            }
+          })
+        })
+
+        this.onRejectedCallbacks.push(() => {
+          setTimeout(() => {
+            try {
+              const x = onRejected(this.reason)
+              resolve(x)
+            } catch (error) {
+              reject(error)
+            }
+          })
+        })
+      }
+    })
+
+    return promise2
+  }
+
+  catch(onRejected) {
+    return this.then(null, onRejected)
+  }
+
+  finally(callback) {
+    return this.then(
+      value => MyPromise.resolve(callback()).then(() => value),
+      reason => MyPromise.resolve(callback()).then(() => { throw reason })
+    )
+  }
+
+  static resolve(value) {
+    return new MyPromise((resolve) => resolve(value))
+  }
+
+  static reject(reason) {
+    return new MyPromise((resolve, reject) => reject(reason))
+  }
+
+  static all(promises) {
+    return new MyPromise((resolve, reject) => {
+      const result = []
+      let count = 0
+      promises.forEach((promise, index) => {
+        MyPromise.resolve(promise).then(value => {
+          result[index] = value
+          count++
+          if (count === promises.length) {
+            resolve(result)
+          }
+        }, reject)
+      })
+    })
+  }
+
+  static race(promises) {
+    return new MyPromise((resolve, reject) => {
+      promises.forEach(promise => {
+        MyPromise.resolve(promise).then(resolve, reject)
+      })
+    })
+  }
+}
+```
+
+### 手写深拷贝
+
+```js
+function deepClone(obj, map = new WeakMap()) {
+  // 处理null和undefined
+  if (obj === null || obj === undefined) return obj
+
+  // 处理基本数据类型
+  if (typeof obj !== 'object') return obj
+
+  // 处理日期对象
+  if (obj instanceof Date) return new Date(obj)
+
+  // 处理正则对象
+  if (obj instanceof RegExp) return new RegExp(obj)
+
+  // 处理循环引用
+  if (map.has(obj)) return map.get(obj)
+
+  // 根据原型创建新对象
+  const cloneObj = new obj.constructor()
+  map.set(obj, cloneObj)
+
+  // 递归拷贝
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      cloneObj[key] = deepClone(obj[key], map)
+    }
+  }
+
+  return cloneObj
+}
+```
+
+### 手写防抖
+
+```js
+function debounce(fn, delay) {
+  let timer = null
+  return function(...args) {
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => {
+      fn.apply(this, args)
+    }, delay)
+  }
+}
+```
+
+### 手写节流
+
+```js
+// 时间戳版本
+function throttle(fn, delay) {
+  let lastTime = 0
+  return function(...args) {
+    const now = Date.now()
+    if (now - lastTime >= delay) {
+      fn.apply(this, args)
+      lastTime = now
+    }
+  }
+}
+
+// 定时器版本
+function throttle(fn, delay) {
+  let timer = null
+  return function(...args) {
+    if (!timer) {
+      timer = setTimeout(() => {
+        fn.apply(this, args)
+        timer = null
+      }, delay)
+    }
+  }
+}
+```
+
+### 手写柯里化
+
+```js
+function curry(fn) {
+  return function curried(...args) {
+    // 如果参数够了，就执行函数
+    if (args.length >= fn.length) {
+      return fn.apply(this, args)
+    } else {
+      // 否则返回一个函数，继续接收参数
+      return function(...args2) {
+        return curried.apply(this, args.concat(args2))
+      }
+    }
+  }
+}
+
+// 使用示例
+function add(a, b, c) {
+  return a + b + c
+}
+const curriedAdd = curry(add)
+console.log(curriedAdd(1)(2)(3)) // 6
+console.log(curriedAdd(1, 2)(3)) // 6
+console.log(curriedAdd(1, 2, 3)) // 6
+```
+
+---
+
+# 十、其他篇
+
+本篇包含Proxy、Reflect、严格模式等其他重要知识点。
+
+## Proxy和Reflect
+
+**Proxy**
+
+Proxy用于创建一个对象的代理，可以拦截并自定义对象的基本操作（如属性查找、赋值等）。Vue 3的响应式系统就是基于Proxy实现的。
+
+```js
+const obj = { name: '张三', age: 18 }
+
+const proxy = new Proxy(obj, {
+  // 拦截读取操作
+  get(target, key) {
+    console.log(`读取了${key}属性`)
+    return target[key]
+  },
+  // 拦截赋值操作
+  set(target, key, value) {
+    console.log(`设置了${key}属性为${value}`)
+    target[key] = value
+    return true
+  },
+  // 拦截删除操作
+  deleteProperty(target, key) {
+    console.log(`删除了${key}属性`)
+    delete target[key]
+    return true
+  },
+  // 拦截in操作符
+  has(target, key) {
+    console.log(`判断是否有${key}属性`)
+    return key in target
+  }
+})
+
+proxy.name // 输出：读取了name属性
+proxy.age = 20 // 输出：设置了age属性为20
+delete proxy.age // 输出：删除了age属性
+'name' in proxy // 输出：判断是否有name属性
+```
+
+**Reflect**
+
+Reflect是一个内置对象，提供了拦截JavaScript操作的方法。这些方法与Proxy的handler方法一一对应。
+
+```js
+const obj = { name: '张三', age: 18 }
+
+// 读取属性
+Reflect.get(obj, 'name') // "张三"
+
+// 设置属性
+Reflect.set(obj, 'age', 20) // true
+
+// 删除属性
+Reflect.deleteProperty(obj, 'age') // true
+
+// 判断属性是否存在
+Reflect.has(obj, 'name') // true
+
+// 获取对象的所有属性名
+Reflect.ownKeys(obj) // ['name']
+```
+
+**Proxy vs Object.defineProperty**
+
+这是Vue 2和Vue 3响应式原理的区别：
+
+| 特性 | Object.defineProperty | Proxy |
+|------|----------------------|-------|
+| 监听属性 | 需要遍历对象的每个属性 | 直接监听整个对象 |
+| 监听数组 | 无法监听数组的变化 | 可以监听数组的变化 |
+| 添加/删除属性 | 无法监听 | 可以监听 |
+| 性能 | 初始化时需要遍历所有属性 | 惰性监听，性能更好 |
+| 兼容性 | 兼容IE9+ | 不兼容IE |
+
+## 严格模式
+
+**什么是严格模式？**
+
+严格模式是ES5引入的一种运行模式，通过在脚本或函数开头添加`'use strict'`来启用。严格模式消除了JavaScript语法的一些不合理、不严谨之处，减少了一些怪异行为。
+
+**如何启用？**
+
+```js
+// 全局严格模式
+'use strict'
+
+// 函数级严格模式
+function fn() {
+  'use strict'
+  // ...
+}
+```
+
+**严格模式的限制：**
+
+1. 变量必须声明后使用
+```js
+'use strict'
+x = 10 // 报错：x is not defined
+```
+
+2. 禁止使用with语句
+```js
+'use strict'
+with (obj) { } // 报错
+```
+
+3. 禁止this指向全局对象
+```js
+'use strict'
+function fn() {
+  console.log(this) // undefined
+}
+fn()
+```
+
+4. 禁止删除变量
+```js
+'use strict'
+var x = 1
+delete x // 报错
+```
+
+5. 对象不能有重复的属性名
+```js
+'use strict'
+const obj = { a: 1, a: 2 } // 报错
+```
+
+6. 函数不能有重复的参数名
+```js
+'use strict'
+function fn(a, a) { } // 报错
+```
+
+7. 禁止八进制表示法
+```js
+'use strict'
+const num = 0123 // 报错
+```
+
+8. arguments对象不再追踪参数变化
+```js
+'use strict'
+function fn(a) {
+  a = 2
+  console.log(arguments[0]) // 1（非严格模式下是2）
+}
+fn(1)
+```
+
+## 性能优化
+
+**代码层面优化：**
+
+1. **防抖节流**：减少高频事件触发的次数
+2. **图片懒加载**：使用Intersection Observer API
+3. **虚拟滚动**：只渲染可视区域的内容
+4. **Web Worker**：将耗时计算放到worker线程
+5. **requestAnimationFrame**：优化动画性能
+6. **事件委托**：减少事件监听器数量
+7. **减少重排重绘**：批量修改DOM，使用documentFragment
+8. **使用CSS动画代替JS动画**：硬件加速
+
+**资源优化：**
+
+1. **代码分割**：按需加载，减少首屏加载时间
+2. **Tree Shaking**：移除未使用的代码
+3. **压缩代码**：使用terser等工具压缩JS
+4. **图片优化**：使用webp格式，压缩图片
+5. **CDN加速**：静态资源使用CDN
+6. **开启Gzip压缩**：减小传输体积
+7. **浏览器缓存**：合理设置缓存策略
+8. **预加载/预连接**：使用link标签的rel属性
+
+**打包优化：**
+
+1. **缩小打包体积**：使用生产模式打包
+2. **splitChunks**：提取公共代码
+3. **externals**：外部依赖不打包
+4. **DLL**：预编译依赖库
+5. **happypack/thread-loader**：多线程打包
+
+## 跨域解决方案
+
+**什么是跨域？**
+
+跨域是指浏览器出于安全考虑，实施的同源策略限制。当协议、域名、端口任一不同时，都会产生跨域。
+
+**同源策略限制：**
+- 无法读取Cookie、LocalStorage、SessionStorage
+- 无法操作DOM
+- AJAX请求无法发送
+
+**跨域解决方案：**
+
+### 1. JSONP（只支持GET请求）
+
+原理：利用script标签不受同源策略限制的特性。
+
+```js
+// 前端代码
+function jsonpCallback(data) {
+  console.log('获取到数据:', data)
+}
+
+const script = document.createElement('script')
+script.src = 'http://example.com/api?callback=jsonpCallback'
+document.body.appendChild(script)
+
+// 服务器返回
+// jsonpCallback({ name: '张三', age: 18 })
+
+// 封装JSONP
+function jsonp(url, callback) {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'jsonp_' + Date.now()
+    window[callbackName] = (data) => {
+      resolve(data)
+      delete window[callbackName]
+      document.body.removeChild(script)
+    }
+    const script = document.createElement('script')
+    script.src = `${url}?callback=${callbackName}`
+    script.onerror = reject
+    document.body.appendChild(script)
+  })
+}
+
+// 使用
+jsonp('http://example.com/api').then(data => {
+  console.log(data)
+})
+```
+
+### 2. CORS（跨域资源共享）
+
+服务器设置响应头，允许跨域请求。
+
+```js
+// Node.js (Express) 服务端设置
+app.use((req, res, next) => {
+  // 允许的源
+  res.header('Access-Control-Allow-Origin', '*') // 或指定域名
+  // 允许的请求方法
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  // 允许的请求头
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  // 允许携带Cookie
+  res.header('Access-Control-Allow-Credentials', 'true')
+  // 预检请求缓存时间
+  res.header('Access-Control-Max-Age', '86400')
+
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200)
+  } else {
+    next()
+  }
+})
+
+// 前端携带Cookie
+fetch('http://example.com/api', {
+  credentials: 'include' // 携带Cookie
+})
+```
+
+### 3. 代理服务器
+
+开发环境使用webpack devServer代理，生产环境使用Nginx反向代理。
+
+```js
+// webpack.config.js
+module.exports = {
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'http://example.com', // 目标服务器
+        changeOrigin: true, // 修改请求头中的host
+        pathRewrite: {
+          '^/api': '' // 重写路径
+        }
+      }
+    }
+  }
+}
+
+// 前端请求
+fetch('/api/users') // 实际请求: http://example.com/users
+```
+
+```nginx
+# Nginx配置
+server {
+  listen 80;
+  server_name localhost;
+
+  location /api {
+    proxy_pass http://example.com;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+}
+```
+
+### 4. postMessage（窗口通信）
+
+用于不同窗口之间的跨域通信。
+
+```js
+// 父窗口向子窗口发送消息
+const iframe = document.getElementById('myIframe')
+iframe.contentWindow.postMessage('Hello from parent', 'http://example.com')
+
+// 子窗口接收消息
+window.addEventListener('message', (e) => {
+  // 验证来源
+  if (e.origin !== 'http://parent.com') return
+
+  console.log('收到消息:', e.data)
+
+  // 回复消息
+  e.source.postMessage('Hello from child', e.origin)
+})
+```
+
+### 5. WebSocket
+
+WebSocket不受同源策略限制。
+
+```js
+const socket = new WebSocket('ws://example.com')
+
+socket.onopen = () => {
+  console.log('连接成功')
+  socket.send('Hello Server')
+}
+
+socket.onmessage = (e) => {
+  console.log('收到消息:', e.data)
+}
+```
+
+### 6. document.domain（主域相同的情况）
+
+```js
+// a.example.com页面
+document.domain = 'example.com'
+
+// b.example.com页面
+document.domain = 'example.com'
+
+// 现在可以互相访问了
+```
+
+### 7. window.name
+
+```js
+// a.html
+window.name = 'data from a.html'
+location.href = 'b.html'
+
+// b.html
+console.log(window.name) // 'data from a.html'
+```
+
+## Ajax 和 Fetch
+
+### Ajax（XMLHttpRequest）
+
+```js
+// 创建XMLHttpRequest对象
+const xhr = new XMLHttpRequest()
+
+// 配置请求
+xhr.open('GET', '/api/users', true) // 方法、URL、是否异步
+
+// 设置请求头
+xhr.setRequestHeader('Content-Type', 'application/json')
+
+// 监听状态变化
+xhr.onreadystatechange = function() {
+  // readyState:
+  // 0: 未初始化
+  // 1: 正在加载
+  // 2: 加载完成
+  // 3: 交互中
+  // 4: 完成
+  if (xhr.readyState === 4) {
+    if (xhr.status === 200) {
+      console.log('成功:', xhr.responseText)
+    } else {
+      console.log('失败:', xhr.status)
+    }
+  }
+}
+
+// 监听进度
+xhr.upload.onprogress = function(e) {
+  if (e.lengthComputable) {
+    const percent = (e.loaded / e.total) * 100
+    console.log(`上传进度: ${percent}%`)
+  }
+}
+
+// 发送请求
+xhr.send(JSON.stringify({ name: '张三' }))
+
+// 取消请求
+// xhr.abort()
+
+// 封装Ajax
+function ajax(options) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    const { method = 'GET', url, data, headers = {} } = options
+
+    xhr.open(method, url, true)
+
+    // 设置请求头
+    Object.keys(headers).forEach(key => {
+      xhr.setRequestHeader(key, headers[key])
+    })
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(JSON.parse(xhr.responseText))
+        } else {
+          reject(new Error(xhr.statusText))
+        }
+      }
+    }
+
+    xhr.onerror = function() {
+      reject(new Error('Network Error'))
+    }
+
+    xhr.send(data ? JSON.stringify(data) : null)
+  })
+}
+
+// 使用
+ajax({
+  method: 'POST',
+  url: '/api/users',
+  data: { name: '张三', age: 18 },
+  headers: { 'Content-Type': 'application/json' }
+}).then(res => {
+  console.log('成功:', res)
+}).catch(err => {
+  console.log('失败:', err)
+})
+```
+
+### Fetch API
+
+```js
+// 基本用法
+fetch('/api/users')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+    return response.json()
+  })
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error))
+
+// POST请求
+fetch('/api/users', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ name: '张三', age: 18 })
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+
+// 携带Cookie
+fetch('/api/users', {
+  credentials: 'include' // same-origin | include | omit
+})
+
+// 设置超时
+const controller = new AbortController()
+const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+fetch('/api/users', {
+  signal: controller.signal
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(err => {
+    if (err.name === 'AbortError') {
+      console.log('请求超时')
+    }
+  })
+  .finally(() => clearTimeout(timeoutId))
+
+// 上传文件
+const formData = new FormData()
+formData.append('file', fileInput.files[0])
+formData.append('name', '张三')
+
+fetch('/api/upload', {
+  method: 'POST',
+  body: formData
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+
+// async/await写法
+async function getUsers() {
+  try {
+    const response = await fetch('/api/users')
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+    const data = await response.json()
+    console.log(data)
+  } catch (error) {
+    console.error('Error:', error)
+  }
+}
+```
+
+### Ajax vs Fetch
+
+| 特性 | Ajax (XMLHttpRequest) | Fetch |
+|------|----------------------|-------|
+| 语法 | 回调函数 | Promise |
+| 浏览器兼容性 | 兼容性好 | 不支持IE |
+| 超时控制 | 内置timeout | 需要AbortController |
+| 上传进度 | 支持 | 不支持 |
+| 错误处理 | 状态码错误会触发error | 只有网络错误才reject |
+| Cookie | 默认携带 | 需要配置credentials |
+| 取消请求 | abort() | AbortController |
+
+## Symbol详解
+
+**什么是Symbol？**
+
+Symbol是ES6新增的原始数据类型，表示独一无二的值，主要用于对象属性名，避免属性名冲突。
+
+**基本用法：**
+
+```js
+// 创建Symbol
+const s1 = Symbol()
+const s2 = Symbol()
+console.log(s1 === s2) // false
+
+// 带描述的Symbol
+const s3 = Symbol('mySymbol')
+console.log(s3.toString()) // 'Symbol(mySymbol)'
+console.log(s3.description) // 'mySymbol'
+
+// 作为对象属性
+const obj = {
+  [s3]: 'value'
+}
+console.log(obj[s3]) // 'value'
+console.log(obj.s3) // undefined (不能用点语法访问)
+
+// Symbol属性不会被常规遍历
+const obj2 = {
+  name: '张三',
+  [Symbol('age')]: 18,
+  [Symbol('gender')]: '男'
+}
+
+Object.keys(obj2) // ['name']
+Object.getOwnPropertyNames(obj2) // ['name']
+for (let key in obj2) { console.log(key) } // name
+
+// 获取Symbol属性
+Object.getOwnPropertySymbols(obj2) // [Symbol(age), Symbol(gender)]
+Reflect.ownKeys(obj2) // ['name', Symbol(age), Symbol(gender)]
+```
+
+**Symbol.for() 和 Symbol.keyFor()：**
+
+```js
+// Symbol.for(): 全局注册
+const s1 = Symbol.for('foo')
+const s2 = Symbol.for('foo')
+console.log(s1 === s2) // true (共享同一个Symbol)
+
+// Symbol.keyFor(): 获取Symbol的key
+const s3 = Symbol.for('bar')
+console.log(Symbol.keyFor(s3)) // 'bar'
+
+const s4 = Symbol('baz')
+console.log(Symbol.keyFor(s4)) // undefined (不是通过Symbol.for创建的)
+```
+
+**内置Symbol值：**
+
+```js
+// Symbol.iterator: 对象的迭代器
+const arr = [1, 2, 3]
+const iterator = arr[Symbol.iterator]()
+console.log(iterator.next()) // { value: 1, done: false }
+console.log(iterator.next()) // { value: 2, done: false }
+console.log(iterator.next()) // { value: 3, done: false }
+console.log(iterator.next()) // { value: undefined, done: true }
+
+// 自定义迭代器
+const obj = {
+  data: ['a', 'b', 'c'],
+  [Symbol.iterator]() {
+    let index = 0
+    return {
+      next: () => {
+        if (index < this.data.length) {
+          return { value: this.data[index++], done: false }
+        } else {
+          return { done: true }
+        }
+      }
+    }
+  }
+}
+
+for (let item of obj) {
+  console.log(item) // 'a' 'b' 'c'
+}
+
+// Symbol.toStringTag: 自定义toString()的返回值
+class MyClass {
+  get [Symbol.toStringTag]() {
+    return 'MyClass'
+  }
+}
+const instance = new MyClass()
+console.log(Object.prototype.toString.call(instance)) // '[object MyClass]'
+
+// Symbol.hasInstance: 自定义instanceof行为
+class MyArray {
+  static [Symbol.hasInstance](instance) {
+    return Array.isArray(instance)
+  }
+}
+console.log([] instanceof MyArray) // true
+console.log({} instanceof MyArray) // false
+```
+
+**使用场景：**
+
+1. 对象属性名，避免冲突
+2. 定义类的私有属性和方法
+3. 消除魔术字符串（代码中多次出现的特定字符串）
+
+```js
+// 消除魔术字符串
+// 不好的写法
+function getArea(shape) {
+  if (shape === 'triangle') {
+    return 'triangle'
+  }
+  if (shape === 'circle') {
+    return 'circle'
+  }
+}
+
+// 好的写法
+const shapeType = {
+  triangle: Symbol('triangle'),
+  circle: Symbol('circle')
+}
+
+function getArea(shape) {
+  if (shape === shapeType.triangle) {
+    return shapeType.triangle
+  }
+  if (shape === shapeType.circle) {
+    return shapeType.circle
+  }
+}
+```
+
+## 迭代器（Iterator）和生成器（Generator）
+
+### 迭代器（Iterator）
+
+**什么是迭代器？**
+
+迭代器是一种接口，为各种不同的数据结构提供统一的访问机制。任何数据结构只要部署了Iterator接口，就可以完成遍历操作。
+
+**迭代器协议：**
+
+```js
+// 迭代器对象必须有next()方法
+// next()方法返回: { value: 当前值, done: 是否完成 }
+
+// 手动实现迭代器
+function createIterator(arr) {
+  let index = 0
+  return {
+    next() {
+      if (index < arr.length) {
+        return { value: arr[index++], done: false }
+      } else {
+        return { value: undefined, done: true }
+      }
+    }
+  }
+}
+
+const iterator = createIterator([1, 2, 3])
+console.log(iterator.next()) // { value: 1, done: false }
+console.log(iterator.next()) // { value: 2, done: false }
+console.log(iterator.next()) // { value: 3, done: false }
+console.log(iterator.next()) // { value: undefined, done: true }
+```
+
+**可迭代对象：**
+
+部署了`Symbol.iterator`属性的对象就是可迭代对象。
+
+```js
+// 原生具备Iterator接口的数据结构
+// - Array
+// - String
+// - Set
+// - Map
+// - TypedArray
+// - 函数的arguments对象
+// - NodeList对象
+
+// 自定义可迭代对象
+const iterable = {
+  data: ['a', 'b', 'c'],
+  [Symbol.iterator]() {
+    let index = 0
+    const data = this.data
+    return {
+      next() {
+        if (index < data.length) {
+          return { value: data[index++], done: false }
+        } else {
+          return { done: true }
+        }
+      }
+    }
+  }
+}
+
+// 使用for...of遍历
+for (let item of iterable) {
+  console.log(item) // 'a' 'b' 'c'
+}
+
+// 使用扩展运算符
+console.log([...iterable]) // ['a', 'b', 'c']
+
+// 使用Array.from
+console.log(Array.from(iterable)) // ['a', 'b', 'c']
+```
+
+### 生成器（Generator）
+
+**什么是生成器？**
+
+生成器是ES6提供的一种异步编程解决方案，可以理解为一个状态机，封装了多个内部状态。
+
+**基本语法：**
+
+```js
+// 生成器函数
+function* gen() {
+  yield 1
+  yield 2
+  yield 3
+  return 4
+}
+
+const g = gen()
+console.log(g.next()) // { value: 1, done: false }
+console.log(g.next()) // { value: 2, done: false }
+console.log(g.next()) // { value: 3, done: false }
+console.log(g.next()) // { value: 4, done: true }
+console.log(g.next()) // { value: undefined, done: true }
+
+// for...of遍历（不包括return的值）
+for (let item of gen()) {
+  console.log(item) // 1 2 3
+}
+```
+
+**yield表达式：**
+
+```js
+function* gen() {
+  const a = yield 1
+  console.log('a:', a)
+  const b = yield 2
+  console.log('b:', b)
+  return 3
+}
+
+const g = gen()
+console.log(g.next()) // { value: 1, done: false }
+console.log(g.next('参数A')) // 打印: a: 参数A, 返回: { value: 2, done: false }
+console.log(g.next('参数B')) // 打印: b: 参数B, 返回: { value: 3, done: true }
+```
+
+**Generator实现异步操作：**
+
+```js
+// 模拟异步操作
+function* asyncGenerator() {
+  console.log('开始')
+
+  const data1 = yield fetch('/api/user')
+  console.log('用户数据:', data1)
+
+  const data2 = yield fetch(`/api/posts/${data1.id}`)
+  console.log('文章数据:', data2)
+
+  return '完成'
+}
+
+// 自动执行器
+function run(gen) {
+  const g = gen()
+
+  function next(data) {
+    const result = g.next(data)
+    if (result.done) return result.value
+    result.value.then(response => response.json()).then(data => {
+      next(data)
+    })
+  }
+
+  next()
+}
+
+run(asyncGenerator)
+
+// Generator vs async/await
+// async/await就是Generator的语法糖
+// 上面的代码用async/await改写：
+async function asyncFunction() {
+  console.log('开始')
+
+  const response1 = await fetch('/api/user')
+  const data1 = await response1.json()
+  console.log('用户数据:', data1)
+
+  const response2 = await fetch(`/api/posts/${data1.id}`)
+  const data2 = await response2.json()
+  console.log('文章数据:', data2)
+
+  return '完成'
+}
+```
+
+**Generator应用：**
+
+```js
+// 1. 无限序列
+function* fibonacci() {
+  let [prev, curr] = [0, 1]
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr]
+  }
+}
+
+const fib = fibonacci()
+console.log(fib.next().value) // 1
+console.log(fib.next().value) // 1
+console.log(fib.next().value) // 2
+console.log(fib.next().value) // 3
+console.log(fib.next().value) // 5
+
+// 2. 状态机
+function* stateMachine() {
+  while (true) {
+    yield 'A'
+    yield 'B'
+    yield 'C'
+  }
+}
+
+const state = stateMachine()
+console.log(state.next().value) // 'A'
+console.log(state.next().value) // 'B'
+console.log(state.next().value) // 'C'
+console.log(state.next().value) // 'A'
+
+// 3. 协程（控制流程）
+function* gen1() {
+  yield 1
+  yield* gen2() // 委托给另一个生成器
+  yield 4
+}
+
+function* gen2() {
+  yield 2
+  yield 3
+}
+
+for (let item of gen1()) {
+  console.log(item) // 1 2 3 4
+}
+```
+
+
+## 无感知登录
+
+无感知登录是指在用户token过期后，自动刷新token并重新发起请求，用户无需重新登录。
+
+**实现思路：**
+
+1. **请求拦截器**：在请求头中添加token
+2. **响应拦截器**：
+   - 如果返回401（token过期），调用刷新token接口
+   - 刷新成功后，重新发起之前失败的请求
+   - 刷新失败，跳转到登录页
+
+**示例代码：**
+
+```js
+// axios拦截器实现
+let isRefreshing = false // 是否正在刷新token
+let requests = [] // 存储待重发的请求
+
+axios.interceptors.response.use(
+  response => response,
+  async error => {
+    const { config, response } = error
+
+    // token过期
+    if (response?.status === 401) {
+      if (!isRefreshing) {
+        isRefreshing = true
+
+        try {
+          // 刷新token
+          const { data } = await refreshToken()
+          localStorage.setItem('token', data.token)
+
+          // 重发所有待处理的请求
+          requests.forEach(cb => cb(data.token))
+          requests = []
+
+          // 重发当前请求
+          return axios(config)
+        } catch (err) {
+          // 刷新失败，跳转登录页
+          router.push('/login')
+          return Promise.reject(err)
+        } finally {
+          isRefreshing = false
+        }
+      } else {
+        // 正在刷新token，将请求加入队列
+        return new Promise(resolve => {
+          requests.push(token => {
+            config.headers.Authorization = `Bearer ${token}`
+            resolve(axios(config))
+          })
+        })
+      }
+    }
+
+    return Promise.reject(error)
+  }
+)
+```
+
+**优化方案：**
+
+1. **使用双token机制**：accessToken（短期）+ refreshToken（长期）
+2. **token即将过期时主动刷新**：避免请求失败
+3. **限制刷新次数**：防止无限循环
+4. **安全存储token**：使用httpOnly cookie存储refreshToken

@@ -149,18 +149,32 @@
 }
 
 /**
- * Code Blocks
+ * Code Blocks - OneDark Theme with macOS Traffic Lights
  * -------------------------------------------------------------------------- */
 
 .vp-doc div[class*='language-'] {
-  margin: 0.8rem 0 !important;
-  border-radius: 2px;
+  position: relative;
+  margin: 15px 0 !important;
+  border-radius: 6px;
   background-color: var(--vp-code-block-bg);
-  border: 1px solid #F4F4F4;
+  border: none;
+  padding: 20px 4px 8px 4px !important;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }
 
-.dark .vp-doc div[class*='language-'] {
-  border: 1px solid hsl(0, 0%, 11%);
+/* macOS Traffic Lights Decoration */
+.vp-doc div[class*='language-']::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ec6a5f;
+  box-shadow:
+    20px 0 0 #f4bf4f,
+    40px 0 0 #61c554;
 }
 
 .vp-doc div[class*='language-'] code {
