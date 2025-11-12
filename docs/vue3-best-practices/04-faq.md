@@ -1,0 +1,1049 @@
+---
+title: Vue 3 组件封装常见问题 FAQ
+---
+
+# Vue 3 组件封装常见问题 FAQ
+
+> 本文汇总了 Vue 3 组件封装学习过程中最常见的问题和解答，帮助你快速解决开发中的困惑。
+
+## 一、组件设计相关
+
+### Q1: 什么时候应该拆分组件？
+
+**A**: 遵循以下原则判断是否需要拆分：
+
+**应该拆分的情况**:
+- ✅ 组件代码超过 **200-300 行**
+- ✅ 组件承担了 **多个职责**（违反单一职责原则）
+- ✅ 某段逻辑在 **多处重复使用**
+- ✅ 组件的某部分 **可以独立测试**
+- ✅ 团队成员难以快速理解组件功能
+
+**示例**:
+
+```vue
+<!-- ❌ 避免：一个组件做太多事 -->
+<template>
+  <div class="user-dashboard">
+    <!-- 用户信息 -->
+    <div class="user-info">...</div>
+    <!-- 统计数据 -->
+    <div class="statistics">...</div>
+    <!-- 最近活动 -->
+    <div class="activities">...</div>
+    <!-- 设置面板 -->
+    <div class="settings">...</div>
+  </div>
+</template>
+
+<!-- ✅ 推荐：拆分为多个专注的组件 -->
+<template>
+  <div class="user-dashboard">
+    <UserInfo :user="user" />
+    <UserStatistics :stats="stats" />
+    <RecentActivities :activities="activities" />
+    <UserSettings :settings="settings" />
+  </div>
+</template>
+```
+
+---
+
+### Q2: 如何判断组件的粒度是否合适？
+
+**A**: 使用 **"黄金三问"** 自检：
+
+1. **这个组件只做一件事吗？** → 单一职责
+2. **这个组件可以独立复用吗？** → 可复用性
+3. **这个组件易于测试和维护吗？** → 可维护性
+
+**粒度过大的信号**:
+- 组件文件超过 300 行
+- Props 超过 10 个
+- 包含多个不相关的功能
+
+**粒度过小的信号**:
+- 组件只有几行代码
+- 只在一个地方使用
+- 拆分后反而增加了复杂度
+
+**最佳实践**:
+```vue
+<!-- ✅ 合适的粒度 -->
+<!-- Button.vue - 专注于按钮功能 -->
+<script setup lang="ts">
+interface Props {
+  variant?: 'primary' | 'secondary' | 'danger'
+  size?: 'sm' | 'md' | 'lg'
+  loading?: boolean
+  disabled?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  variant: 'primary',
+  size: 'md'
+})
+</script>
+
+<template>
+  <button 
+    :class="['btn', `btn-${variant}`, `btn-${size}`]"
+    :disabled="disabled || loading"
+  >
+    <span v-if="loading" class="spinner"></span>
+    <slot />
+  </button>
+</template>
+```
+
+---
+
+### Q3: 智能组件和展示组件如何选择？
+
+**A**: 
+
+**智能组件 (Container Component)**:
+- 负责 **数据获取和业务逻辑**
+- 连接状态管理（Pinia/Vuex）
+- 处理副作用（API 调用、路由跳转）
+- 通常不包含样式
+
+**展示组件 (Presentational Component)**:
+- 负责 **UI 展示**
+- 通过 Props 接收数据
+- 通过 Emits 通知父组件
+- 可复用性强
+
+**示例**:
+
+```vue
+<!-- 智能组件: UserProfileContainer.vue -->
+<script setup lang="ts">
+import { useUserStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
+import UserProfile from './UserProfile.vue'
+
+const userStore = useUserStore()
+const { user, loading, error } = storeToRefs(userStore)
+
+const handleUpdate = async (data: UserData) => {
+  await userStore.updateProfile(data)
+}
+</script>
+
+<template>
+  <UserProfile 
+    :user="user"
+    :loading="loading"
+    :error="error"
+    @update="handleUpdate"
+  />
+</template>
+
+<!-- 展示组件: UserProfile.vue -->
+<script setup lang="ts">
+interface Props {
+  user: User | null
+  loading: boolean
+  error: Error | null
+}
+
+interface Emits {
+  (e: 'update', data: UserData): void
+}
+
+defineProps<Props>()
+const emit = defineEmits<Emits>()
+</script>
+
+<template>
+  <div class="user-profile">
+    <div v-if="loading">Loading...</div>
+    <div v-else-if="error">Error: {{ error.message }}</div>
+    <div v-else-if="user">
+      <h1>{{ user.name }}</h1>
+      <button @click="emit('update', userData)">Update</button>
+    </div>
+  </div>
+</template>
+```
+
+**选择建议**:
+- 页面级组件 → 智能组件
+- 可复用的 UI 组件 → 展示组件
+- 复杂业务逻辑 → 拆分为智能组件 + 展示组件
+
+---
+
+### Q4: 组件应该有状态还是无状态？
+
+**A**: 
+
+**优先设计无状态组件**，除非：
+- 组件需要管理 **UI 交互状态**（如展开/折叠、选中状态）
+- 组件需要 **临时缓存数据**（如表单输入）
+- 组件是 **智能组件**，负责数据获取
+
+**示例**:
+
+```vue
+<!-- ✅ 无状态组件（推荐） -->
+<script setup lang="ts">
+interface Props {
+  items: Item[]
+  selectedId: string
+}
+
+interface Emits {
+  (e: 'select', id: string): void
+}
+
+defineProps<Props>()
+const emit = defineEmits<Emits>()
+</script>
+
+<template>
+  <ul>
+    <li 
+      v-for="item in items" 
+      :key="item.id"
+      :class="{ active: item.id === selectedId }"
+      @click="emit('select', item.id)"
+    >
+      {{ item.name }}
+    </li>
+  </ul>
+</template>
+
+<!-- ⚠️ 有状态组件（仅在必要时） -->
+<script setup lang="ts">
+import { ref } from 'vue'
+
+interface Props {
+  items: Item[]
+}
+
+defineProps<Props>()
+
+// 组件内部管理选中状态
+const selectedId = ref<string | null>(null)
+
+const handleSelect = (id: string) => {
+  selectedId.value = id
+  // 可以同时向外通知
+  emit('select', id)
+}
+</script>
+```
+
+---
+
+### Q5: 如何避免组件过度设计？
+
+**A**: 遵循 **YAGNI 原则**（You Aren't Gonna Need It）
+
+**避免过度设计的建议**:
+1. **不要预测未来需求** - 只实现当前需要的功能
+2. **从简单开始** - 先实现基础版本，再根据需求迭代
+3. **避免过早抽象** - 等到有 3 个以上相似场景再抽象
+4. **保持 Props API 简洁** - 不要添加"可能用到"的配置项
+
+**示例**:
+
+```vue
+<!-- ❌ 过度设计 -->
+<script setup lang="ts">
+interface Props {
+  variant?: 'primary' | 'secondary' | 'danger' | 'warning' | 'info' | 'success'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+  rounded?: boolean | 'sm' | 'md' | 'lg' | 'full'
+  shadow?: boolean | 'sm' | 'md' | 'lg' | 'xl'
+  animation?: 'none' | 'fade' | 'slide' | 'bounce'
+  // ... 还有 20 个配置项
+}
+</script>
+
+<!-- ✅ 合理设计 -->
+<script setup lang="ts">
+interface Props {
+  variant?: 'primary' | 'secondary' | 'danger'
+  size?: 'sm' | 'md' | 'lg'
+  disabled?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  variant: 'primary',
+  size: 'md'
+})
+</script>
+```
+
+---
+
+## 二、Props/Emits/Slots 相关
+
+### Q6: Props 应该设计为必填还是可选？
+
+**A**: 
+
+**必填 Props** (required):
+- 组件 **核心功能依赖** 的数据
+- 没有合理默认值的数据
+- 业务关键数据
+
+**可选 Props** (optional):
+- 配置项、样式定制
+- 有合理默认值的属性
+- 增强功能的参数
+
+**示例**:
+
+```typescript
+// ✅ 合理的 Props 设计
+interface UserCardProps {
+  // 必填：核心数据
+  user: User
+  
+  // 可选：配置项
+  showAvatar?: boolean
+  avatarSize?: 'sm' | 'md' | 'lg'
+  layout?: 'horizontal' | 'vertical'
+}
+
+const props = withDefaults(defineProps<UserCardProps>(), {
+  showAvatar: true,
+  avatarSize: 'md',
+  layout: 'horizontal'
+})
+```
+
+**判断标准**:
+```
+如果没有这个 Props，组件能正常工作吗？
+├─ 能 → 可选 Props + 默认值
+└─ 不能 → 必填 Props
+```
+
+---
+
+### Q7: 如何避免 Props 过多？
+
+**A**: 使用以下策略：
+
+**策略 1: 使用对象 Props 分组**
+
+```typescript
+// ❌ Props 过多
+interface Props {
+  buttonText: string
+  buttonVariant: string
+  buttonSize: string
+  buttonDisabled: boolean
+  buttonLoading: boolean
+}
+
+// ✅ 使用对象分组
+interface ButtonConfig {
+  text: string
+  variant: string
+  size: string
+  disabled: boolean
+  loading: boolean
+}
+
+interface Props {
+  buttonConfig: ButtonConfig
+}
+```
+
+**策略 2: 使用 Slots 代替配置型 Props**
+
+```vue
+<!-- ❌ 使用 Props 配置 -->
+<DataTable
+  :title="tableTitle"
+  :showSearch="true"
+  :searchPlaceholder="'搜索...'"
+  :showExport="true"
+  :exportButtonText="'导出'"
+/>
+
+<!-- ✅ 使用 Slots -->
+<DataTable>
+  <template #header>
+    <h2>{{ tableTitle }}</h2>
+    <input placeholder="搜索..." />
+    <button>导出</button>
+  </template>
+</DataTable>
+```
+
+**策略 3: 考虑拆分组件**
+
+```vue
+<!-- 如果 Props 超过 10 个，考虑拆分 -->
+<ComplexForm /> 
+<!-- 拆分为 -->
+<FormHeader />
+<FormBody />
+<FormFooter />
+```
+
+---
+
+### Q8: v-model 和 :value + @input 有什么区别？
+
+**A**:
+
+**v-model 是语法糖**:
+
+```vue
+<!-- 这两种写法等价 -->
+<input v-model="text" />
+<input :value="text" @input="text = $event.target.value" />
+
+<!-- Vue 3 组件中 -->
+<MyComponent v-model="value" />
+<!-- 等价于 -->
+<MyComponent 
+  :modelValue="value" 
+  @update:modelValue="value = $event"
+/>
+```
+
+**Vue 3 支持多个 v-model**:
+
+```vue
+<script setup lang="ts">
+const title = ref('')
+const content = ref('')
+</script>
+
+<template>
+  <BlogPost 
+    v-model:title="title"
+    v-model:content="content"
+  />
+</template>
+
+<!-- BlogPost.vue -->
+<script setup lang="ts">
+const title = defineModel<string>('title')
+const content = defineModel<string>('content')
+</script>
+
+<template>
+  <input v-model="title" />
+  <textarea v-model="content" />
+</template>
+```
+
+**何时使用**:
+- 双向绑定场景 → `v-model`
+- 单向数据流 → `:value` + `@input`
+- 表单组件 → 优先 `v-model`
+
+---
+
+### Q9: 什么时候使用 Slots，什么时候使用 Props？
+
+**A**:
+
+**使用 Slots 的场景**:
+- ✅ 需要 **自定义 HTML 结构**
+- ✅ 需要 **传递组件**
+- ✅ 内容 **包含样式和交互**
+- ✅ 需要 **高度灵活性**
+
+**使用 Props 的场景**:
+- ✅ 传递 **简单数据**（字符串、数字、布尔值）
+- ✅ 传递 **配置项**
+- ✅ 需要 **类型检查和验证**
+
+**对比示例**:
+
+```vue
+<!-- ❌ 不好：用 Props 传递复杂内容 -->
+<Card 
+  :title="'用户信息'"
+  :content="'<div><span>姓名</span><span>张三</span></div>'"
+/>
+
+<!-- ✅ 好：用 Slots 传递复杂内容 -->
+<Card>
+  <template #title>用户信息</template>
+  <template #content>
+    <div class="user-info">
+      <span class="label">姓名</span>
+      <span class="value">张三</span>
+    </div>
+  </template>
+</Card>
+
+<!-- ✅ 好：用 Props 传递简单数据 -->
+<Button 
+  variant="primary"
+  size="md"
+  :disabled="false"
+>
+  提交
+</Button>
+```
+
+**决策树**:
+```
+需要传递的内容是什么？
+├─ 简单数据（字符串、数字） → Props
+├─ 配置项 → Props
+├─ HTML 结构 → Slots
+└─ 组件 → Slots
+```
+
+---
+
+### Q10: 如何处理深层嵌套的 Props 传递？
+
+**A**: 使用以下方案避免 **Props Drilling**（属性钻取）：
+
+**方案 1: Provide/Inject**
+
+```vue
+<!-- 祖先组件 -->
+<script setup lang="ts">
+import { provide } from 'vue'
+
+const theme = ref('dark')
+provide('theme', theme)
+</script>
+
+<!-- 深层子组件 -->
+<script setup lang="ts">
+import { inject } from 'vue'
+
+const theme = inject<Ref<string>>('theme')
+</script>
+```
+
+**方案 2: 使用 Pinia 状态管理**
+
+```typescript
+// stores/app.ts
+export const useAppStore = defineStore('app', () => {
+  const theme = ref('dark')
+  return { theme }
+})
+
+// 任何组件中
+import { useAppStore } from '@/stores/app'
+const appStore = useAppStore()
+const { theme } = storeToRefs(appStore)
+```
+
+**方案 3: 重新设计组件结构**
+
+```vue
+<!-- ❌ 避免：深层传递 -->
+<GrandParent :user="user">
+  <Parent :user="user">
+    <Child :user="user">
+      <GrandChild :user="user" />
+    </Child>
+  </Parent>
+</GrandParent>
+
+<!-- ✅ 推荐：扁平化结构 -->
+<UserProvider :user="user">
+  <GrandChild />
+</UserProvider>
+```
+
+**选择建议**:
+- 跨 2-3 层 → 直接传递 Props
+- 跨 3+ 层 → Provide/Inject
+- 全局状态 → Pinia
+- 主题、配置 → Provide/Inject
+
+---
+
+## 三、Composables 相关
+
+### Q11: 什么时候使用 Composables，什么时候使用组件？
+
+**A**:
+
+**使用 Composables**:
+- ✅ **纯逻辑复用**（无 UI）
+- ✅ 需要在 `<script>` 中使用
+- ✅ 需要更好的 **TypeScript 类型推断**
+- ✅ 需要 **更好的性能**（无额外组件实例）
+
+**使用组件**:
+- ✅ 需要 **UI 展示**
+- ✅ 逻辑 + UI 都需要复用
+- ✅ 需要利用 **组件生命周期**
+
+**示例**:
+
+```typescript
+// ✅ Composable：纯逻辑
+export function useCounter(initialValue = 0) {
+  const count = ref(initialValue)
+  const increment = () => count.value++
+  const decrement = () => count.value--
+  return { count, increment, decrement }
+}
+
+// 使用
+const { count, increment } = useCounter(10)
+```
+
+```vue
+<!-- ✅ 组件：逻辑 + UI -->
+<script setup lang="ts">
+const props = defineProps<{ initialValue?: number }>()
+const count = ref(props.initialValue ?? 0)
+const increment = () => count.value++
+</script>
+
+<template>
+  <div class="counter">
+    <button @click="increment">{{ count }}</button>
+  </div>
+</template>
+```
+
+---
+
+### Q12: Composables 和 Renderless Components 如何选择？
+
+**A**: **Vue 3 官方强烈推荐优先使用 Composables**
+
+**对比**:
+
+| 维度 | Composables | Renderless Components |
+|------|-------------|----------------------|
+| 性能 | ✅ 更轻量 | ❌ 额外组件实例开销 |
+| 类型推断 | ✅ 更好 | ⚠️ 需要手动定义 |
+| 使用位置 | `<script>` | `<template>` |
+| 代码可读性 | ✅ 逻辑集中 | ⚠️ 逻辑分散 |
+
+**示例对比**:
+
+```typescript
+// ✅ 推荐：Composable
+export function useMouse() {
+  const x = ref(0)
+  const y = ref(0)
+  
+  const update = (e: MouseEvent) => {
+    x.value = e.pageX
+    y.value = e.pageY
+  }
+  
+  onMounted(() => window.addEventListener('mousemove', update))
+  onUnmounted(() => window.removeEventListener('mousemove', update))
+  
+  return { x, y }
+}
+
+// 使用
+const { x, y } = useMouse()
+```
+
+```vue
+<!-- ⚠️ 不推荐：Renderless Component -->
+<MouseTracker v-slot="{ x, y }">
+  <div>{{ x }}, {{ y }}</div>
+</MouseTracker>
+```
+
+**何时使用 Renderless Components**:
+- 构建组件库，需要最大灵活性
+- 逻辑需要在模板中可见
+
+---
+
+### Q13: 如何在 Composables 中处理副作用？
+
+**A**: 
+
+**关键原则：始终清理副作用**
+
+```typescript
+// ✅ 正确处理副作用
+export function useEventListener(
+  target: Ref<EventTarget | null>,
+  event: string,
+  handler: EventListener
+) {
+  onMounted(() => {
+    target.value?.addEventListener(event, handler)
+  })
+  
+  // 关键：清理副作用
+  onUnmounted(() => {
+    target.value?.removeEventListener(event, handler)
+  })
+}
+
+// ✅ 使用 watchEffect 自动清理
+export function useAutoSave(data: Ref<any>) {
+  const stop = watchEffect(() => {
+    localStorage.setItem('draft', JSON.stringify(data.value))
+  })
+  
+  onUnmounted(stop) // 清理 watcher
+}
+
+// ✅ 返回清理函数
+export function useInterval(callback: () => void, delay: number) {
+  let timer: number
+  
+  onMounted(() => {
+    timer = setInterval(callback, delay)
+  })
+  
+  onUnmounted(() => {
+    clearInterval(timer)
+  })
+  
+  // 也可以返回手动清理函数
+  return () => clearInterval(timer)
+}
+```
+
+---
+
+### Q14: Composables 可以互相调用吗？
+
+**A**: **可以，这是 Composables 的强大之处**
+
+```typescript
+// 基础 Composable
+export function useFetch<T>(url: string) {
+  const data = ref<T | null>(null)
+  const error = ref<Error | null>(null)
+  const loading = ref(false)
+  
+  const execute = async () => {
+    loading.value = true
+    try {
+      const response = await fetch(url)
+      data.value = await response.json()
+    } catch (e) {
+      error.value = e as Error
+    } finally {
+      loading.value = false
+    }
+  }
+  
+  return { data, error, loading, execute }
+}
+
+// 组合多个 Composables
+export function useUserWithPosts(userId: string) {
+  // 调用其他 Composables
+  const { data: user, loading: userLoading } = useFetch(`/api/users/${userId}`)
+  const { data: posts, loading: postsLoading } = useFetch(`/api/users/${userId}/posts`)
+  
+  const loading = computed(() => userLoading.value || postsLoading.value)
+  
+  return { user, posts, loading }
+}
+
+// 在组件中使用
+const { user, posts, loading } = useUserWithPosts('123')
+```
+
+**最佳实践**:
+- ✅ 保持每个 Composable 单一职责
+- ✅ 通过组合构建复杂功能
+- ✅ 避免循环依赖
+
+---
+
+## 四、TypeScript 集成
+
+### Q15: 如何为组件 Props 定义类型？
+
+**A**: 
+
+**方式 1: 使用 TypeScript 接口（推荐）**
+
+```typescript
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'danger'
+  size?: 'sm' | 'md' | 'lg'
+  disabled?: boolean
+  loading?: boolean
+}
+
+const props = withDefaults(defineProps<ButtonProps>(), {
+  variant: 'primary',
+  size: 'md',
+  disabled: false,
+  loading: false
+})
+```
+
+**方式 2: 运行时声明（Vue 2 风格）**
+
+```typescript
+const props = defineProps({
+  variant: {
+    type: String as PropType<'primary' | 'secondary' | 'danger'>,
+    default: 'primary'
+  },
+  size: {
+    type: String as PropType<'sm' | 'md' | 'lg'>,
+    default: 'md'
+  }
+})
+```
+
+**推荐使用方式 1**，因为：
+- ✅ 更简洁
+- ✅ 更好的类型推断
+- ✅ 编译时类型检查
+
+---
+
+### Q16: 泛型组件如何实现？
+
+**A**: 使用 Vue 3.3+ 的 `generic` 属性
+
+```vue
+<script setup lang="ts" generic="T">
+interface Props {
+  items: T[]
+  keyField: keyof T
+}
+
+defineProps<Props>()
+</script>
+
+<template>
+  <div v-for="item in items" :key="item[keyField]">
+    <slot :item="item" />
+  </div>
+</template>
+
+<!-- 使用 -->
+<script setup lang="ts">
+interface User {
+  id: number
+  name: string
+}
+
+const users: User[] = [...]
+</script>
+
+<template>
+  <GenericList :items="users" key-field="id">
+    <template #default="{ item }">
+      <!-- item 自动推断为 User 类型 -->
+      {{ item.name }}
+    </template>
+  </GenericList>
+</template>
+```
+
+---
+
+### Q17: 如何为 Emits 定义类型？
+
+**A**:
+
+```typescript
+// 方式 1: 类型化 defineEmits（推荐）
+interface Emits {
+  (e: 'update:modelValue', value: string): void
+  (e: 'submit', data: FormData): void
+  (e: 'cancel'): void
+}
+
+const emit = defineEmits<Emits>()
+
+// 使用时有完整的类型检查
+emit('update:modelValue', 'new value') // ✅
+emit('submit', formData) // ✅
+emit('unknown', 123) // ❌ 类型错误
+
+// 方式 2: 运行时声明
+const emit = defineEmits(['update:modelValue', 'submit', 'cancel'])
+```
+
+---
+
+## 五、性能和最佳实践
+
+### Q18: 如何优化大列表渲染？
+
+**A**: 使用以下策略：
+
+**策略 1: v-memo（Vue 3.2+）**
+
+```vue
+<template>
+  <div 
+    v-for="item in list" 
+    :key="item.id"
+    v-memo="[item.id, item.selected]"
+  >
+    <!-- 只有 id 或 selected 变化时才重新渲染 -->
+    {{ item.name }}
+  </div>
+</template>
+```
+
+**策略 2: 虚拟滚动**
+
+```vue
+<script setup>
+import { useVirtualList } from '@vueuse/core'
+
+const { list, containerProps, wrapperProps } = useVirtualList(
+  allItems,
+  { itemHeight: 50 }
+)
+</script>
+
+<template>
+  <div v-bind="containerProps" style="height: 400px">
+    <div v-bind="wrapperProps">
+      <div v-for="item in list" :key="item.index">
+        {{ item.data.name }}
+      </div>
+    </div>
+  </div>
+</template>
+```
+
+**策略 3: 分页加载**
+
+```typescript
+const pageSize = 50
+const currentPage = ref(1)
+
+const displayedItems = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return allItems.value.slice(start, start + pageSize)
+})
+```
+
+---
+
+### Q19: 什么时候使用 shallowRef？
+
+**A**:
+
+**使用 shallowRef 的场景**:
+- ✅ 大型 **不可变数据结构**
+- ✅ 整体替换而非修改内部属性
+- ✅ 性能敏感场景
+
+```typescript
+// ✅ 适合 shallowRef：大型不可变对象
+const bigData = shallowRef({
+  // 包含 10000 个属性的对象
+})
+
+// 整体替换
+bigData.value = newBigData
+
+// ❌ 不适合 shallowRef：需要响应式追踪内部属性
+const user = ref({
+  name: 'John',
+  age: 30
+})
+
+// 需要响应式
+user.value.name = 'Jane' // 会触发更新
+```
+
+**对比**:
+
+```typescript
+// ref：深层响应式
+const state = ref({ nested: { count: 0 } })
+state.value.nested.count++ // ✅ 触发更新
+
+// shallowRef：只有根层响应式
+const state = shallowRef({ nested: { count: 0 } })
+state.value.nested.count++ // ❌ 不触发更新
+state.value = { nested: { count: 1 } } // ✅ 触发更新
+```
+
+---
+
+### Q20: 如何避免不必要的重渲染？
+
+**A**:
+
+**策略 1: 使用 computed 缓存**
+
+```typescript
+// ❌ 每次渲染都重新计算
+<template>
+  <div>{{ items.filter(i => i.active).length }}</div>
+</template>
+
+// ✅ 使用 computed 缓存
+const activeCount = computed(() => 
+  items.value.filter(i => i.active).length
+)
+
+<template>
+  <div>{{ activeCount }}</div>
+</template>
+```
+
+**策略 2: v-once 和 v-memo**
+
+```vue
+<!-- 只渲染一次 -->
+<div v-once>{{ staticContent }}</div>
+
+<!-- 条件缓存 -->
+<div v-memo="[valueA, valueB]">
+  <!-- 只有 valueA 或 valueB 变化时才重新渲染 -->
+</div>
+```
+
+**策略 3: 避免在模板中创建新对象**
+
+```vue
+<!-- ❌ 每次渲染都创建新对象 -->
+<Child :config="{ theme: 'dark', size: 'lg' }" />
+
+<!-- ✅ 使用响应式对象 -->
+<script setup>
+const config = reactive({ theme: 'dark', size: 'lg' })
+</script>
+
+<template>
+  <Child :config="config" />
+</template>
+```
+
+---
+
+## 总结
+
+本 FAQ 涵盖了 Vue 3 组件封装中最常见的 20 个问题，建议：
+
+1. **收藏本页** - 遇到问题时快速查找
+2. **结合实践** - 在实际项目中应用这些最佳实践
+3. **持续学习** - 关注 Vue 3 官方文档的更新
+
+**相关文档**:
+- [组件封装最佳实践](./01-component-encapsulation.md)
+- [无渲染组件指南](./02-renderless-components.md)
+- [组件二次封装指南](./03-component-wrapper.md)
+- [性能优化专题](./05-performance-optimization.md)
+
+---
+
+**最后更新**: 2025年1月  
+**贡献**: 欢迎提交新问题和改进建议
+

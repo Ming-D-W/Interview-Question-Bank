@@ -16,7 +16,7 @@ export default defineConfig({
     nav: [
       { text: "首页", link: "/" },
       { text: "面试题", link: "/interview/01.Vue" },
-      { text: "Vue3 最佳实践", link: "/vue3-best-practices/" },
+      { text: "Vue3 组件封装最佳实践", link: "/vue3-best-practices/" },
     ],
     sidebar: {
       "/interview/": [
@@ -35,12 +35,14 @@ export default defineConfig({
       ],
       "/vue3-best-practices/": [
         {
-          text: "Vue 3 最佳实践",
+          text: "Vue 3 组件封装最佳实践",
           items: [
             { text: "概述", link: "/vue3-best-practices/" },
             { text: "组件封装最佳实践", link: "/vue3-best-practices/01-component-encapsulation" },
             { text: "无渲染组件指南", link: "/vue3-best-practices/02-renderless-components" },
             { text: "组件二次封装指南", link: "/vue3-best-practices/03-component-wrapper" },
+            { text: "常见问题 FAQ", link: "/vue3-best-practices/04-faq" },
+            { text: "性能优化专题", link: "/vue3-best-practices/05-performance-optimization" },
           ],
         },
       ],
