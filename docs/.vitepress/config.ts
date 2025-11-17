@@ -63,9 +63,9 @@ export default defineConfig({
           text: "面试题",
           items: [
             { text: "Vue", link: "/interview/01.Vue" },
-            { text: "JavaScript", link: "/interview/02.JS" },
+            { text: "JavaScript", link: "/interview/02.javascript" },
             { text: "浏览器 & HTTP", link: "/interview/03.浏览器&http" },
-            { text: "CSS", link: "/interview/04.CSS" },
+            { text: "CSS", link: "/interview/04.css" },
             { text: "New Vue 主体流程", link: "/interview/07.new vue主体流程" },
             { text: "Vue2 响应式源码", link: "/interview/08.Vue2响应式源码" },
             { text: "Vue2 Diff 算法", link: "/interview/09.Vue2 Diff 算法" },
